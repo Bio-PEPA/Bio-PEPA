@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plotting Tools
+Bundle-SymbolicName: uk.ac.ed.inf.common.ui.plotting;singleton:=true
+Bundle-Version: 0.0.10
+Bundle-Activator: uk.ac.ed.inf.common.ui.plotting.Plotting
+Require-Bundle: org.eclipse.birt.chart.ui,
+ org.eclipse.birt.chart.engine.extension,
+ org.eclipse.birt.chart.device.swt,
+ org.eclipse.birt.chart.device.extension
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: LFCS - The University of Edinburgh
+Export-Package: uk.ac.ed.inf.common.ui.plotting,
+ uk.ac.ed.inf.common.ui.plotting.data,
+ uk.ac.ed.inf.common.ui.plotting.dialogs,
+ uk.ac.ed.inf.common.ui.plotting.internal;x-internal:=true
+Import-Package: org.eclipse.core.runtime,
+ org.eclipse.jface.resource,
+ org.eclipse.ui.plugin,
+ org.osgi.framework

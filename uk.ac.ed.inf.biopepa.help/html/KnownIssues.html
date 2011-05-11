@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <title>Known Issues
+      </title>
+   </head>
+
+   <body>
+      <h2>
+         Known Issues
+      </h2>
+      <h3>
+         Defects
+      </h3> 
+      <p>
+         <ol>
+           <li> Reading in csv files does not allow comment lines begun with #
+                but it should. This is due to the library used, either a better one
+                should be found or alternatively it wouldn't be that hard to code
+                one up ourselves.
+           </li>
+           <li> The Simulation Tracer algorithm does not understand compartments </li>
+           <li> The Prism output does not understand compartments </li>
+         </ol>
+      </p>
+      <h3>
+        Desired Features
+      </h3>
+      <p>
+      	<ol>
+      	  <li> A default system equation consisting of all the defined reagents
+      	       all cooperating with <*> 
+      	  </li>
+      	  <li> Allow defined names to not be used in the system equation and
+      	  thereby "knocking out their behaviour". Maria Luisa has the details on
+      	  this enhancement.
+      	  </li>
+      	  <li> Output the time it took to perform a simulation </li>
+      	  <li> The Invariants view could be nicer in particular we could
+      	  output a copy+pastable format.
+      	  </li>
+      	</ol>
+      </p>
+   </body>
+</html>

@@ -1,0 +1,83 @@
+<project name="BioPEPA" default="cup" basedir="../">
+	<property name="grammar" location="grammar" />
+	<property name="src" location="src" />
+	<property name="classes" location="ant_classes" />
+	<property name="lib" location="runtime" />
+	<property name="bin" location="libraries" />
+	<property name="dist" location="dist" />
+	<property environment="env" /> 
+
+	<!-- We rely on CUP-11a  JFlex 1.4.1  -->
+
+	<fileset dir="${bin}" id="binaries.fileset">
+		<include name="**/*.jar" />
+		<include name="**/*.zip" />
+	</fileset>
+
+	<fileset dir="${lib}" id="libraries.fileset">
+		<include name="**/*.jar" />
+		<include name="**/*.zip" />
+	</fileset>
+
+	<!-- Here compile time tools -->
+	<path id="binaries">
+		<fileset refid="binaries.fileset" />
+		<pathelement location="${bin}" />
+		<pathelement path="${java.class.path}" />
+		<pathelement path="${classes}" />
+	</path>
+
+	<!-- Here, the runtime libraries are stored -->
+	<path id="libraries">
+		<fileset refid="libraries.fileset"/>
+		<pathelement location="${lib}" />
+		<pathelement path="${java.class.path}" />
+	</path>
+
+	<!-- We also use JFlex -->
+	<taskdef name="jflex" classname="JFlex.anttask.JFlexTask" classpath="${bin}/JFlex.jar" />
+
+	<!-- We also use CUP-11a -->
+	<taskdef name="cup" classname="java_cup.anttask.CUPTask" classpath="${bin}/java-cup-11a.jar" />
+
+	<target name="init">
+		<mkdir dir="${classes}" />
+		<delete dir="${dist}"/>
+	</target>
+
+	<target name="cup" depends="jflex">
+		<cup srcfile="${grammar}/biopepa.cup" destdir="${src}" interface="true" dump="true" parser="BioPEPAParser" symbols="BioPEPAToken" />
+	</target>
+
+	<target name="jflex" depends="init">
+		<jflex file="${grammar}/biopepa.jflex" destdir="${src}" />
+	</target>
+
+	<target name="compile" depends="jflex, cup">
+		<javac srcdir="${src}" destdir="${classes}">
+			<classpath refid="libraries" />
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile" description="Distributes SRMC Core">
+		<mkdir dir="${dist}"/>
+		<unjar dest="${classes}">
+			<fileset dir="${lib}">
+				<include name="**/*.jar"/>
+			</fileset>
+		</unjar>
+			
+		<jar compress="true" jarfile="${dist}/srmc.jar" basedir="${classes}">
+			<fileset dir="${lib}"/>
+			<manifest>
+				<attribute name="Main-Class" value="uk.ac.ed.inf.srmc.core.dom.internal.Test" />
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${classes}" />
+		
+	</target>
+	
+</project>

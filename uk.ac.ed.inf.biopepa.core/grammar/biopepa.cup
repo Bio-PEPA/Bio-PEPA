@@ -1,0 +1,604 @@
+package uk.ac.ed.inf.biopepa.core.dom.internal;
+
+import uk.ac.ed.inf.biopepa.core.dom.*;
+
+import java_cup.runtime.*;
+
+import java.util.List;
+import java.util.LinkedList;
+
+action code {:
+
+	private static final int INHIBITOR = 0;
+	
+	private static final int REACTANT = 1;
+	
+	private static final int GENERIC = 2;
+	
+	private static final int PRODUCT = 3;
+	
+	private static final int ACTIVATOR = 4;
+	
+	private static final int UMOVE = 5;
+	
+	private static final int BMOVE = 6;
+
+	AST ast = AST.newAST();
+	
+	Model model = ast.newModel();
+	
+	LinkedList<Name> names = new LinkedList<Name>();
+	
+	LinkedList<Expression> parameters = new LinkedList<Expression>();
+	
+	LinkedList<Expression> properties = new LinkedList<Expression>();
+	
+	LinkedList<Name> locations = new LinkedList<Name>();
+	
+	Name name;
+	
+	private void clearProperties() {properties = new LinkedList<Expression>();}
+	
+	private void clearParameters() {parameters = new LinkedList<Expression>();}
+	
+	private void clearNameList() {names = new LinkedList<Name>();}
+		
+	NameSet doneNameList() {
+		NameSet nameSet = ast.newNameSet();
+		for (Name name : names)
+			nameSet.names().add(name);
+		clearNameList();
+		return nameSet;
+	}
+	
+	List<Expression> doneParameterList() {
+		List<Expression> old = parameters;
+		clearParameters();
+		return old;
+	}
+	
+	PropertyInitialiser doneProperties() {
+	 	PropertyInitialiser pi = ast.newPropertyInitialiser();
+		for (Expression e : properties)
+			pi.properties().add(e);
+		clearProperties();
+		return pi;
+	}
+		
+	void addName(String name) {
+		names.addFirst(createName(name));
+	}
+	
+	void addProperty(Expression property) {
+		properties.addFirst(property);
+	}
+	
+	void addParameter(Expression expression) {
+		parameters.addFirst(expression);
+	}
+	
+	Name createName(String name) {
+		Name newName = ast.newName();
+		newName.setIdentifier(name);
+		this.name = newName;
+		return newName;
+	}
+	
+	LocatedName createLocatedName(String name, NameSet locations) {
+		LocatedName newName = ast.newLocatedName();
+		newName.setIdentifier(name);
+		newName.setLocations(locations);
+		return newName;
+	}
+		
+	Expression createInfixExpression(
+		Expression lhs, Expression rhs, InfixExpression.Operator op) {
+		InfixExpression result = ast.newInfixExpression();
+		result.setLeftHandSide(lhs);
+		result.setRightHandSide(rhs);
+		result.setOperator(op);
+		return result;	
+	}
+	
+	Statement createDeclaration(VariableDeclaration.Kind kind,
+		Name name, Expression expression) {
+		VariableDeclaration declaration = ast.newVariableDeclaration();
+		declaration.setKind(kind);
+		declaration.setName(name);
+		declaration.setRightHandSide(expression);
+		model.statements().add(declaration);
+		return declaration;
+	}
+	
+	PropertyLiteral createPropertyLiteral(PropertyLiteral.Kind kind) {
+		PropertyLiteral literal = ast.newPropertyLiteral();
+		literal.setKind(kind);
+		return literal;
+	}
+	
+	Expression createComponent(Name name, Expression level) {
+		Component comp = ast.newComponent();
+		comp.setName(name);
+		comp.setLevel(level);
+		return comp;
+	}
+		
+	Expression createCooperation(Expression lhs, NameSet set, Expression rhs) {
+		Cooperation coop = ast.newCooperation();
+		coop.setLeftHandSide(lhs);
+		coop.setRightHandSide(rhs);
+		coop.setActionSet(set);
+		return coop;
+	}
+:}
+
+parser code {:
+	private StringBuffer m_sExpected = new StringBuffer(); 
+    
+    private static final String EMPTY = "";
+ 	/* Return terminal symbols by sym. */	
+	public String gettokenstr( int sym ) {
+	   BioPEPALexer lexer = (BioPEPALexer) getScanner();
+	   String result = lexer.map.get(sym);
+	   return (result!=null)?result:EMPTY;
+	}
+	  
+	/*
+     * Prepares the list of expected input tokens.
+     * It doesn't try any recover action.
+     * Hence, unrecovered_syntax_error is likely to be thrown 
+     */    
+	public void syntax_error(java_cup.runtime.Symbol current) {
+		//unrecovered_syntax_error(current);
+		
+		int state = ((Symbol)stack.peek()).parse_state;
+		short[] row = action_tab[state];
+		
+		for( int i = 0; i<row.length; i += 2) {
+		   if( row[i]>0) {
+               m_sExpected.append("'").append(gettokenstr(row[i]));
+               m_sExpected.append("', ");
+           }
+		}
+		m_sExpected.delete(m_sExpected.length()-2, m_sExpected.length());
+		int j = m_sExpected.lastIndexOf("', '");
+		if(j > 0)
+			m_sExpected.replace(j, j+4, "' or '");
+	}
+        /** Simply calls <code>report_fatal_error()</code>.
+         */
+	public void report_error(String message, 
+		java_cup.runtime.Symbol info) {
+	}
+
+        /** Fetches column and line number from the lexer, and then throws 
+         *  an exception containing the error message to signal
+         *  that parsing has been unsuccessful. If the symbol
+         *  contains a value, this is also reported.
+         */
+	public void unrecovered_syntax_error(java_cup.runtime.Symbol Current) 
+			throws ParserException{
+		done_parsing();
+		BioPEPALexer pl = (BioPEPALexer)this.getScanner();
+		throw new ParserException( 
+			pl.getCurrentChar(),
+		    (pl.getCurrentLineNumber()+1),
+		     pl.getCurrentColumn(), 
+                     pl.yylength(),
+		    "Syntax Error. Current symbol: '" + 
+		    	(Current.value==null? 
+		    		gettokenstr(Current.sym) : Current.value) +
+		    "'. Expected : " + m_sExpected.toString());
+	}
+
+    public void report_fatal_error(String message, Object info) 
+  		throws ParserException{
+		
+		done_parsing();
+		BioPEPALexer pl = (BioPEPALexer)this.getScanner();
+		throw new ParserException(
+		pl.getCurrentChar(),
+		    (pl.getCurrentLineNumber()+1),
+		    pl.getCurrentColumn(),
+                    pl.yylength(),
+                    message);
+        }
+:}
+
+terminal SIZE, COMPARTMENT, MEMBRANE, TIME;
+terminal LPAREN, RPAREN, LSQUARE, RSQUARE;
+terminal REACTANT, PRODUCT, ACTIVATOR, INHIBITOR, GENERIC, UMOVE, BMOVE;
+terminal COMMA, COLON, SEMI, EQUALS, LCOOP, RCOOP, AT, IN;
+terminal MULT, MINUS, PLUS, DIVIDE, POWER;
+terminal String NUMBER_LITERAL;
+terminal String NAME;
+terminal STEP, LEVELS, MAX_CONC, MIN_CONC, TYPE;
+terminal LOCATION_DEF, FUNCTION, SPECIES;
+
+
+non terminal Model biopepa_model;
+non terminal statements, statement;
+// Kinds of statements in the system
+non terminal Statement variable_declaration;
+non terminal Statement function_declaration;
+non terminal Statement behaviour_declaration;
+non terminal Statement species_declaration;
+non terminal Statement location_declaration;
+non terminal Statement compositional_declaration;
+
+non terminal function_parameter, parameter_sep;
+non terminal optional_properties, property_sep;
+non terminal other_locations;
+non terminal Name component_name, variable_name, ml_component_name, prefix_name;
+non terminal Expression sequential_component,cooperation;
+non terminal Integer operator, transport_operator;
+non terminal Expression prefix;
+non terminal Expression activity, complete_activity, pepa_action;
+non terminal NameSet action_set;
+non terminal Expression expr;
+non terminal PropertyLiteral key, type;
+non terminal Expression system_equation;
+
+non terminal action_list, action_sep;
+non terminal Expression property;
+
+/* The standard PEPA precedence for combinators as 
+ *explained in Jane's Thesis:
+ *
+ * highest	HIDE
+ *			PREFIX
+ *		    COOPERATION
+ * lowest	CHOICE
+ *
+ */
+precedence left	    PLUS,  MINUS;			
+precedence left     LCOOP;				
+//precedence nonassoc DOT;					
+precedence left     MULT, DIVIDE;
+precedence left 	POWER;
+
+start with biopepa_model;
+
+biopepa_model ::= statements system_equation:expr
+				  {:
+				  	ExpressionStatement st = ast.newExpressionStatement();
+				  	st.setExpression(expr);
+				  	ISourceRange range = expr.getSourceRange(); 
+				  	st.setSourceRange(range.getChar(), range.getLength(), range.getLine(), range.getColumn());	 
+				  	model.statements().add(st);
+				  	RESULT = model;
+				  :}
+				  ;
+
+statements ::= statements statement | ;
+
+statement  ::= variable_declaration:s {: RESULT = s; :}
+			   |
+			   location_declaration:s {: RESULT = s; :}
+			   |
+			   species_declaration:s {: RESULT = s; :}
+			   | 
+			   function_declaration:s {: RESULT = s; :}
+			   |
+			   behaviour_declaration:s {: RESULT = s; :}
+			   |
+			   compositional_declaration:s {: RESULT = s; :}
+			   ;
+
+/*
+ * Parses component_name instead of the more correct variable_name due to
+ * Shift/Reduce conflict. Compiler code will have to ensure the name is of the
+ * correct type.
+ */
+variable_declaration ::= variable_name:name EQUALS expr:_expr SEMI 
+						 {:
+						     RESULT = createDeclaration(VariableDeclaration.Kind.VARIABLE, name, _expr);
+						 :}
+						 ;
+
+location_declaration ::= LOCATION_DEF variable_name:name optional_properties SEMI
+						 {:
+						     RESULT = createDeclaration(VariableDeclaration.Kind.CONTAINER, name, doneProperties()); 
+						 :}
+						 |
+						 LOCATION_DEF NAME:location IN NAME:parent optional_properties SEMI
+						 {:
+						     addName(parent);
+						     Name name = createLocatedName(location, doneNameList());
+						     RESULT = createDeclaration(VariableDeclaration.Kind.CONTAINER, name, doneProperties());
+						 :}
+						 ;
+
+species_declaration ::= SPECIES ml_component_name:name COLON property SEMI
+						{:
+						    RESULT = createDeclaration(VariableDeclaration.Kind.SPECIES, name, doneProperties()); 
+						:}
+						;
+
+/* For example: kineticLawOf a1 : fMA(r1) ;
+ * but we also wish to be able to write:
+ * a1 = [ r1 ] ;
+ */
+function_declaration ::= FUNCTION variable_name:name COLON expr:_expr SEMI
+						 {:
+						     RESULT = createDeclaration(VariableDeclaration.Kind.FUNCTION, name, _expr);
+						 :}
+						 | variable_name:name EQUALS LSQUARE expr:_expr RSQUARE SEMI
+						 {:
+						     RESULT = createDeclaration(VariableDeclaration.Kind.FUNCTION, name, _expr);
+						 :}
+						 ;
+
+behaviour_declaration ::= variable_name:name EQUALS sequential_component:_expr SEMI 
+						  {:
+						      _expr.fillInDeclarationName(name);
+						      RESULT = createDeclaration(VariableDeclaration.Kind.COMPONENT, name, _expr);
+						  :}
+						  ;
+						  
+compositional_declaration ::= variable_name:name COLON COLON EQUALS cooperation:expr SEMI
+							  {:
+							      RESULT = createDeclaration(VariableDeclaration.Kind.COMPONENT, name, expr);
+							  :}
+							  ;
+
+component_name ::= NAME:name AT NAME:location
+				   {:
+				       addName(location);
+				       RESULT = createLocatedName(name, doneNameList());
+				   :}
+				   |
+				   NAME:name {: RESULT = createName(name); :}
+				   ;
+				   
+ml_component_name ::= NAME:name AT NAME:location other_locations
+					  {:
+					      addName(location);
+					      RESULT= createLocatedName(name, doneNameList());
+					  :}
+					  |
+					  NAME:name {: RESULT = createName(name); :}
+					  ;
+
+other_locations ::= COMMA NAME:location other_locations
+			  	    {:
+			            addName(location);
+			        :}
+			        |
+			        ;
+				 	
+variable_name ::= NAME:name {: RESULT = createName(name); :};
+
+function_parameter ::= expr:_expr parameter_sep {: addParameter(_expr); :} | ;
+
+parameter_sep ::= COMMA function_parameter | ;
+
+optional_properties ::= COLON property | ; 
+
+property ::= key:keyExpr EQUALS expr:_expr property_sep
+			 {:
+			     Expression result = createInfixExpression(keyExpr, _expr, InfixExpression.Operator.EQUALS);
+			     addProperty(result);
+			     RESULT = result;
+			 :}
+			 |
+			 TYPE EQUALS type:_type property_sep
+			 {:
+			     PropertyLiteral pl = createPropertyLiteral(PropertyLiteral.Kind.TYPE);
+			     Expression expression = createInfixExpression(pl, _type, InfixExpression.Operator.EQUALS);
+			     addProperty(expression);
+			     RESULT = expression;
+			 :}
+			 ;
+			  
+property_sep ::= COMMA property | ;
+
+key ::= STEP {: RESULT = createPropertyLiteral(PropertyLiteral.Kind.H); :}
+ 		|
+ 		SIZE {: RESULT = createPropertyLiteral(PropertyLiteral.Kind.SIZE); :}
+  		|
+ 		MAX_CONC {: RESULT = createPropertyLiteral(PropertyLiteral.Kind.MAX); :}
+ 		|
+ 		MIN_CONC {: RESULT = createPropertyLiteral(PropertyLiteral.Kind.MIN); :}
+ 		;
+
+type ::= COMPARTMENT {: RESULT = createPropertyLiteral(PropertyLiteral.Kind.COMPARTMENT); :}
+		 |
+		 MEMBRANE {: RESULT = createPropertyLiteral(PropertyLiteral.Kind.MEMBRANE); :}
+		 ;
+
+/* Expression for variables */
+expr ::= TIME
+		 {:
+		 	SystemVariable sv = ast.newSystemVariable();
+		 	sv.setVariable(SystemVariable.Variable.TIME);
+		 	RESULT = sv;
+		 	
+		 :}
+		 |
+		 component_name:name {: RESULT = name; :}
+		 |
+		 NUMBER_LITERAL:numberLiteral
+		 {:
+		 	NumberLiteral l = ast.newNumberLiteral();
+		 	l.setToken(numberLiteral);
+		 	RESULT = l;
+		 :}
+		 |
+		 expr:lhs PLUS expr:rhs
+		 {:
+		 	RESULT = createInfixExpression(lhs, rhs, InfixExpression.Operator.PLUS);
+		 :}
+		 | 
+		 LPAREN expr:_expr RPAREN {: RESULT = _expr; :}
+		 |
+		 expr:lhs MINUS expr:rhs
+		 {:
+		 	RESULT = createInfixExpression(lhs, rhs, InfixExpression.Operator.MINUS);
+		 :}
+		 |
+		 MINUS NUMBER_LITERAL:numberLiteral
+		 {:
+		 	NumberLiteral l = ast.newNumberLiteral();
+		 	l.setToken("-" + numberLiteral);
+		 	RESULT = l;
+		 :}
+		 |
+		 expr:lhs DIVIDE expr:rhs
+		 {:
+		 	RESULT = createInfixExpression(lhs, rhs, InfixExpression.Operator.DIVIDE);
+		 :}
+		 |
+		 expr:lhs MULT expr:rhs
+		 {:
+		 	RESULT = createInfixExpression(lhs, rhs, InfixExpression.Operator.TIMES);
+		 :}
+		 |
+		 expr:lhs POWER expr:rhs
+		 {:
+		 	RESULT = createInfixExpression(lhs, rhs, InfixExpression.Operator.POWER);
+		 :}
+		 |
+		 // Function call, from some library
+		 NAME:name LPAREN function_parameter RPAREN
+		 {:
+		 	FunctionCall fCall = ast.newFunctionCall();
+		 	List<Expression> arguments = doneParameterList();
+		 	for (Expression expression : arguments)
+		 		fCall.arguments().add(expression);
+		 	fCall.setName(createName(name));
+		 	RESULT = fCall;
+		 :}
+		 ;
+						
+sequential_component ::= prefix:expr {: RESULT = expr; :}
+						 |
+						 sequential_component:lhs PLUS sequential_component:rhs 
+		 				 {:
+		 				 	RESULT = createInfixExpression(lhs, rhs, InfixExpression.Operator.PLUS);
+		 				 :}
+		 				 ;
+
+prefix ::= activity:_activity operator:o prefix_name:name
+		   {:
+		       InfixExpression.Operator op = null;
+			   switch(o) {
+			       case ACTIVATOR:
+				       op = InfixExpression.Operator.ACTIVATOR;
+					   break;
+				   case INHIBITOR:
+				       op = InfixExpression.Operator.INHIBITOR;
+					   break;
+				   case GENERIC:
+				       op = InfixExpression.Operator.GENERIC;
+					   break;
+				   case REACTANT:
+				       op = InfixExpression.Operator.REACTANT;
+					   break;
+				   case PRODUCT:
+					   op = InfixExpression.Operator.PRODUCT;
+					   break;
+				   };
+			   RESULT = createInfixExpression(_activity, name, op);
+		   :}
+		   ;
+		   
+prefix_name ::= ml_component_name:name {: RESULT = name ; :}
+                | /* Nothing */ 
+                  {: // System.out.println ("getting here!!") ; 
+                     RESULT = null ; 
+                   :}
+                ;
+
+activity ::= complete_activity:_activity {: RESULT = _activity; :}
+			 |
+			 pepa_action:name {: RESULT = name; :}
+			 ;
+
+complete_activity ::= LPAREN pepa_action:name COMMA expr:stoichometry RPAREN 
+					  {:
+					  	Prefix prefix = ast.newPrefix();
+						prefix.setActionType(name);
+						prefix.setStoichometry(stoichometry);
+						RESULT = prefix;
+					  :}
+					  ;
+
+pepa_action ::= variable_name:name {: RESULT = name; :}
+		   |
+		   variable_name:name LSQUARE variable_name:left transport_operator:o variable_name:right RSQUARE
+		   {:
+		       Transport transport = ast.newTransport();
+		       transport.setLeftHandSide(left);
+		       transport.setRightHandSide(right);
+		       transport.setActionType(name);
+		       InfixExpression.Operator op = null;
+		       switch(o) {
+		           case UMOVE:
+		               op = InfixExpression.Operator.UMOVE;
+		               break;
+		           case BMOVE:
+		               op = InfixExpression.Operator.BMOVE;
+		               break;
+		       };
+		       transport.setOperator(op);
+		       RESULT = transport;
+		   :}
+		   ;
+		
+cooperation ::= component_name:name LSQUARE expr:level RSQUARE
+				{:
+					RESULT = createComponent(name,level);
+				:}
+				|
+				cooperation:lhs action_set:set cooperation:rhs
+				{:
+					RESULT = createCooperation(lhs, set, rhs);
+				:}
+				| 
+				LPAREN cooperation:coop RPAREN {: RESULT = coop; :}
+				;
+
+system_equation ::= component_name:name LSQUARE expr:_expr RSQUARE
+					{:
+						RESULT = createComponent(name, _expr);
+					:}
+					|
+					variable_name:name {: RESULT = name; :}
+					|
+					system_equation:lhs action_set:set system_equation:rhs
+					{:
+						RESULT = createCooperation(lhs, set, rhs);
+					:}
+					| 
+					LPAREN system_equation:expr RPAREN {: RESULT = expr; :}
+					;
+						 
+operator ::= ACTIVATOR {: RESULT = ACTIVATOR; :}
+			 |
+			 INHIBITOR {: RESULT = INHIBITOR; :}
+			 | 
+			 GENERIC {: RESULT = GENERIC; :}
+			 |
+			 REACTANT {: RESULT = REACTANT; :}
+			 | 
+			 PRODUCT {: RESULT = PRODUCT; :}
+			 ;
+
+transport_operator ::= UMOVE {: RESULT = UMOVE; :}
+					   |
+					   BMOVE {: RESULT = BMOVE; :}
+					   ;
+
+action_set ::= 	LCOOP MULT RCOOP
+				{:
+					addName(Cooperation.WILDCARD);
+					RESULT = doneNameList();
+				:}
+				|
+				LCOOP action_list RCOOP {: RESULT = doneNameList(); :}
+			    ;
+
+action_list ::= NAME:name action_sep {: addName(name); :} | ;
+
+action_sep ::= COMMA action_list | ;

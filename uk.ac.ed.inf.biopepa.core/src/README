@@ -1,0 +1,18 @@
+To compile and run Bio-PEPA from source the following is required:
+
+1. Eclipse for RCP and RAP developers, available at www.eclipse.org
+2. BIRT Framework, downloadable from within Eclipse.
+3. All 4 Bio-PEPA packages (technically feature is not required to compile and
+   run)
+3. All 5 common packages (technically feature is not required to compile and
+   run)
+
+Unpack and launch Eclipse. BIRT Framework can be found in the Business
+Intelligence, Reporting and Charting category. Add the packages, compile and
+then run as Eclipse Application to confirm the installation succeeded.
+
+The Bio-PEPA Parser is automatically generated using Java CUPS and JFlex.
+To alter the parser edit the JFlex and CUPs file in grammar/ and run the ant
+file in ant/. After doing so, assuming you are developing in Eclipse
+(recommended) you will need to refresh uk.ac.ed.inf.biopepa.core.dom.internal
+at which point Eclipse will 'see' the new parser and compile.

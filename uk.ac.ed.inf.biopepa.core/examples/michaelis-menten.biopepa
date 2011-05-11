@@ -1,0 +1,51 @@
+/* 
+ * Michaelis-Menten Example
+ */
+
+// ******************************************************************
+// compartements, only attribute is 'size'
+// ******************************************************************
+compartment singleCompartment : size = 1;
+
+// ******************************************************************
+/* Species
+ * attributes may be:
+ *  - H (step)
+ *  - N (maximum number of levels)
+ *  - M0 (initial concentration)
+ *  - M (maximum concentration)
+ *  - V (compartement)
+ */
+// ******************************************************************
+
+species S : H=0.01, N=2, M0=0.01, M = 0.01, V=singleCompartment;
+species E : H=0.001, N=2, M0=0.001, M = 0.001, V=singleCompartment;
+species P : H=0.01, N=2, M0=0, M = 0.01, V=singleCompartment;
+
+
+// ******************************************************************
+//constants
+// ******************************************************************
+v_M = 1;
+K_M = 0.01;
+
+// ******************************************************************
+// Kinetic laws
+// ******************************************************************
+kineticLawOf alpha : (v_M * E * S)/(K_M + S);
+
+// alternatively, a predefined function may be used:
+// kineticLawOf alpha : fMM(v_M, K_M);
+
+// ******************************************************************
+// Sequential components
+// ******************************************************************
+S = (alpha, 1) >> S;
+P = (alpha, 1) << P;
+E = (alpha, 1) (+) E;
+
+// ******************************************************************
+// System equation
+// ******************************************************************
+Sub = S[1] <alpha> E[1];  
+Sub  <alpha> P[0]

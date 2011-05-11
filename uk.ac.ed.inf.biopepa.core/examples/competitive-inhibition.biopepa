@@ -1,0 +1,31 @@
+// COMPETITIVE INHIBITION
+
+//There is competition between the enzyme (E) and the inhibitor (I)
+
+// using default compartment
+species S: H=0.01, N=2, M0=0.01, M=0.01;
+species E: H=0.001, N=2, M0=0.001, M=0.001; 
+species I: H=0.001, N=2, M0=0.001, M=0.001; 
+species P: H=0.01, N=2, M0 = 0, M=0.01;
+
+//constants
+K_M = 0.01;
+K_I = 0.04;
+v_C = 1;
+
+//kinetic laws
+kineticLawOf alpha : (v_C* S* E)/(S + K_M*(1 + (I/K_I))); 
+
+//Components
+S = (alpha,1) >> S;
+P = (alpha,1) << P;  
+E = (alpha,1) (+) E;
+I = (alpha,1) (-) I;
+
+// compositional definition of system equation
+SubSystem = (S[1]<alpha>E[1]<alpha>I[1]); 
+
+//model component
+SubSystem <alpha> P[0]
+
+

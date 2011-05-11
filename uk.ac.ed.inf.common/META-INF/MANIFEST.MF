@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Plug-in
+Bundle-SymbolicName: uk.ac.ed.inf.common
+Bundle-Version: 0.0.10
+Bundle-Activator: uk.ac.ed.inf.common.CommonPlugin
+Bundle-Vendor: LFCS - The University of Edinburgh
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.debug.core,
+ org.eclipse.core.variables
+Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.ed.inf.common,
+ uk.ac.ed.inf.common.data,
+ uk.ac.ed.inf.common.launching
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core BioPEPA
+Bundle-SymbolicName: uk.ac.ed.inf.biopepa.core;singleton:=true
+Bundle-Version: 0.2.1
+Bundle-Activator: uk.ac.ed.inf.biopepa.core.BioPEPACore
+Bundle-Vendor: LFCS - The University of Edinburgh
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ runtime/java-cup-11a-runtime.jar,
+ libraries/systemsbiology.jar,
+ libraries/opencsv-2.1.jar,
+ libraries/jlibsedml.jar,
+ libraries/numericalMethods/numericalMethods.jar
+Export-Package: uk.ac.ed.inf.biopepa.core,
+ uk.ac.ed.inf.biopepa.core.analysis,
+ uk.ac.ed.inf.biopepa.core.compiler,
+ uk.ac.ed.inf.biopepa.core.dom,
+ uk.ac.ed.inf.biopepa.core.dom.internal,
+ uk.ac.ed.inf.biopepa.core.interfaces,
+ uk.ac.ed.inf.biopepa.core.sba,
+ uk.ac.ed.inf.biopepa.core.sba.export
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: uk.ac.ed.inf.biopepa.core.sba.export

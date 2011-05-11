@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Fri Feb 08 11:38:22 IST 2008
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=biopepa.jar
+manifest.mergeall=true
+manifest.mainclass=uk.ac.ed.inf.biopepa.tests.Parser
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<po|uk.ac.ed.inf.biopepa.core>~uk/~ac/~ed/~inf/~biopepa/~core/~BioPEPACore.class;<jar|org.eclipse.core.runtime_3.3.100.v20070530.jar>;<jar|org.eclipse.osgi_3.3.1.R33x_v20070828.jar>;<jar|org.eclipse.equinox.common_3.3.0.v20070426.jar>;<jar|org.eclipse.core.jobs_3.3.1.R33x_v20070709.jar>;<jar|runtime_registry_compatibility.jar>;<jar|org.eclipse.equinox.registry_3.3.1.R33x_v20070802.jar>;<jar|org.eclipse.equinox.preferences_3.2.100.v20070522.jar>;<jar|org.eclipse.core.contenttype_3.2.100.v20070319.jar>;<jar|org.eclipse.equinox.app_1.0.1.R33x_v20070828.jar>
+includes=

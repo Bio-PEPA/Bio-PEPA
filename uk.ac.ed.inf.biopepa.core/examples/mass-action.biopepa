@@ -1,0 +1,42 @@
+//MASS ACTION with stoichiometry different from 1
+// 2X + Y ->3 Z
+
+
+//Volume (default value)
+//We could avoid to consider it, when not necessary....
+
+
+//Components properties. 
+// C: H, N, M_0,M,V, where H is the step, N the maximum number of levels
+// M_0 the initial concentration, M the max concentration and V is the compartment
+//the first three components are mandatory, the others optional
+
+species X: H=100, N=2, M0 = 200, M=200;
+species Y: H=100, N=2, M0=100, M=100; 
+species Z: N=3, H=100, M=300 , M0=0 ; // notice, order swapped
+
+//constants
+r = 0.001 + 0.001;
+
+s = 0.03;
+
+//kinetic laws
+//the prefined function function fMA is considered
+//the form of the function is r*(X^2)*Y
+//the reactants (X and Y) of the reaction are extracted from the system. 
+
+kineticLawOf alpha : fMA(r);
+kineticLawOf gamma : fMA(s);
+
+//Sequential components
+X = (alpha, 2) >> X + (gamma, 2) << X; 
+Y = (alpha, 1) >> Y + (gamma, 1) << Y; 
+Z = (alpha, 1) << Z + (gamma, 1) >> Z;
+
+//model component
+
+(X[2] <alpha> Y[1]) <alpha> Z[0]
+
+
+
+ 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="BioPEPA Eclipse Help" topic="html/toc.html">
+   <topic label="Getting Started">
+      <anchor id="gettingstarted"/>
+   </topic>
+   <topic label="Samples">
+      <anchor id="samples"/>
+   </topic>
+   <topic href="html/DevelopersHelp.html" label="Developers">
+   </topic>
+   <topic href="html/KnownIssues.html" label="Known Issues">
+   </topic>
+</toc>

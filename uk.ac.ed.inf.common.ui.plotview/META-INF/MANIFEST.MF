@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plot View Plug-in
+Bundle-SymbolicName: uk.ac.ed.inf.common.ui.plotview; singleton:=true
+Bundle-Version: 0.0.10
+Bundle-Activator: uk.ac.ed.inf.common.ui.plotview.PlotViewPlugin
+Bundle-Vendor: LFCS - The University of Edinburgh
+Require-Bundle: uk.ac.ed.inf.common.ui.plotting,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.birt.chart.ui
+Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.ed.inf.common.ui.plotview,
+ uk.ac.ed.inf.common.ui.plotview.views
+Import-Package: org.eclipse.ui.dialogs
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -1,0 +1,31 @@
+species S : N=4, H=0.01, M=0.01, M0 = 0.0;//, V=singleCompartment;
+species S : N=4, H=0.01, M=0.01, M0 = 0.0;//, V=singleCompartment;
+species E : N=2, H=0.001, M0=0.001, M = 0.001;//, V=singleCompartment;
+species P : N=2, H=0.01,  M0=0, M = 0.01;//, V=singleCompartment;
+species Q : N=2, H=1, M0=0.01, M=0.01;
+species Q1_NotUSed : N=2, H=1, M0=0.01, M=0.01;
+
+
+a = 1 +log(1);
+b = 3 + 1;
+b_not_used = 0;
+
+v_M = 1 * 8 + a + b;
+K_M = (0.00 + 2) / 0.5 + v_M + v_M + v_M;
+
+kineticLawOf alpha : (v_M * E * S)/(K_M + v_M);
+
+kineticLawOf beta : fMM(v_M, 2);
+
+kineticLawOf beta_not_used : fMM(v_M, 2);
+
+S = (alpha, 1) >> S + >> beta;
+P = (alpha, 1) << P  + >> beta ;
+E = (alpha, 1) (+) E + (+) beta;
+
+First = S[1] <alpha> E[2];
+First = S[1] <alpha> E[2];
+
+Compositional = S[4] <alpha> E[1];
+
+Compositional <alpha> P[0] <alpha,alpha> E[2]

@@ -1,0 +1,65 @@
+/*
+ * Simple genetic networks
+ */
+
+
+/*
+ * Definition of compartments
+ * Only 'size' is allowed
+ */
+compartment cell: size = 1e-6;
+
+// Definition of component properties
+// If a compartment is declared, each species must
+// specify the 'V' attribute.
+species SM: H=1,N=2,M0=1,M=1,V=cell;
+species P: H=30,N=2,M0=0,M=30,V=cell; 
+species P2: H=30,N=6,M0=0,M=180,V=cell;
+//Auxiliary components
+species Res: H=1,N=2,M0=0, V=cell;
+species CF: H=1,N=2,M0=0, V=cell;  
+
+
+//definition of functional rates
+
+// user defined rate
+kineticLawOf alpha_1  : 2 * v * CF * (K_M + P2);
+// rates from a default library.
+// for Michaelis-Menten, use fMM(k1, k2)
+kineticLawOf alpha_2  : fMA(k2);
+kineticLawOf alpha_3  : fMA(k3); 
+kineticLawOf alpha_4  : fMA(k4);
+kineticLawOf alpha_5  : fMA(k5); 
+kineticLawOf alpha_5i : fMA(k5i);
+
+//Parameters
+
+// Some of the following are not used. This will
+// be notified to user by static analysis.
+
+// Notice, K_M is defined after it is used (alpha_1)
+K_M = 356;
+v = 2.19;
+k2 = 0.043;
+k3 =0.0039;
+k4 = 0.0007; 
+k5 = 0.025;
+k5i = 0.5;
+
+
+//Components
+
+SM   = (alpha_2,1)(+) SM + (alpha_3,1) >> SM + (alpha_1,1) << SM;
+P   = (alpha_4,1)  >> P  + (alpha_5,2) >> P +
+     (alpha_5i,2) << P  + (alpha_2,1) << P;
+// Alternatively, a more compact description is supported
+// P = >> alpha_4  (default stoichometric information)
+// 	 + >> (alpha_5, 2)  (implicit target) 
+P2  = (alpha_1,1) (-) P2 + (alpha_5i,1) >> P2 + (alpha_5,1) << P2;
+Res = (alpha_3,1) (.) Res + (alpha_4,1) (.) Res;
+CF  = (alpha_1,1) (.) CF;
+
+
+// model component 
+(((CF[1]<alpha_1>SM[0])<alpha_2>P[0])<alpha_5,alpha_5i,alpha_1>P2[0])
+<alpha_3,alpha_4>Res[0]

@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bio-PEPA User Interface
+Bundle-SymbolicName: uk.ac.ed.inf.biopepa.ui;singleton:=true
+Bundle-Version: 0.2.0
+Bundle-Activator: uk.ac.ed.inf.biopepa.ui.BioPEPAPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.core.resources,
+ uk.ac.ed.inf.biopepa.core,
+ org.eclipse.ui.ide,
+ uk.ac.ed.inf.common.ui.plotting,
+ uk.ac.ed.inf.common.ui.plotview,
+ org.eclipse.ui.views
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: LFCS - The University of Edinburgh
+Export-Package: uk.ac.ed.inf.biopepa.ui,
+ uk.ac.ed.inf.biopepa.ui.editors
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: .,
+ lib/opencsv-2.1/deploy/opencsv-2.1.jar,
+ lib/sbsidataformattJava/libSBSIDataFormat.jar,
+ lib/sbsidataformattJava/lib/commons-io-1.4.jar,
+ lib/jlibsedml/jlibsedml.jar,
+ lib/jlibsedml/lib/jaxen-1.1.1.jar,
+ lib/jlibsedml/lib/jdom_1.0.jar,
+ lib/jlibsedml/lib/jmathml.jar,
+ lib/jlibsedml/lib/xom-1.2.1.jar,
+ lib/james-core-08.jar,
+ lib/commons-cli-1.1.jar

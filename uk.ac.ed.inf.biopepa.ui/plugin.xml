@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Bio-PEPA Editor"
+            extensions="biopepa"
+            icon="icons/bio-pepa16.png"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="uk.ac.ed.inf.biopepa.ui.editors.BioPEPAEditor"
+            id="uk.ac.ed.inf.biopepa.ui.editors.BioPEPAEditor">
+      </editor>
+   </extension>
+   
+    <extension
+          point="org.eclipse.ui.editorActions">
+       <editorContribution
+             id="uk.ac.ed.inf.biopepa.ui.editorActions"
+             targetID="uk.ac.ed.inf.biopepa.ui.editors.BioPEPAEditor">
+          <menu
+                id="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu"
+                label="Bio-PEPA"
+                path="additions">
+             <groupMarker
+                   name="uk.ac.ed.inf.biopepa.ui.groupMarker1">
+             </groupMarker>
+          </menu>
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.ExportAction"
+                id="uk.ac.ed.inf.biopepa.ui.export"
+                label="Export..."
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.TraviandoExportAction"
+                id="uk.ac.ed.inf.biopepa.ui.traviandoexport"
+                label="Simulation Trace..."
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.SimulationDistributionsAction"
+                id="uk.ac.ed.inf.biopepa.ui.simulationdistributions"
+                label="Simulation Distributions..."
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.InvariantsAction"
+                id="uk.ac.ed.inf.biopepa.ui.invariantaction"
+                label="Infer Invariants..."
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+          <!-- 
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.ComponentRelationsAction"
+                id="uk.ac.ed.inf.biopepa.ui.componentrelations"
+                label="Infer Component Relations..."
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+          -->
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.PrismExportAction"
+                id="uk.ac.ed.inf.biopepa.ui.prismexport"
+                label="Prism Export..."
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+          <action
+                class="uk.ac.ed.inf.biopepa.ui.actions.TimeSeriesAnalysisAction"
+                id="uk.ac.ed.inf.biopepa.ui.timeseries"
+                label="Time-series Analysis"
+                menubarPath="uk.ac.ed.inf.biopepa.ui.BioPEPAMenu/uk.ac.ed.inf.biopepa.ui.groupMarker1">
+          </action>
+       </editorContribution>
+    </extension>
+    <extension
+          point="org.eclipse.ui.perspectives">
+       <perspective
+             class="uk.ac.ed.inf.biopepa.ui.PerspectiveFactory"
+             icon="icons/bio-pepa16.png"
+             id="uk.ac.ed.inf.biopepa.eclipse.ui.BioPEPAPerspective"
+             name="Bio-PEPA">
+       </perspective>
+    </extension>
+    <extension
+          point="org.eclipse.ui.views">
+       <category
+             id="uk.ac.ed.inf.biopepa.ui"
+             name="Analysis">
+       </category>
+       <view
+             category="uk.ac.ed.inf.biopepa.ui"
+             class="uk.ac.ed.inf.biopepa.ui.views.BioPEPAInvariantsView"
+             icon="icons/sample.gif"
+             id="uk.ac.ed.inf.biopepa.ui.views.BioPEPAInvariantsView"
+             name="Invariants">
+       </view>
+       <view
+             category="uk.ac.ed.inf.biopepa.ui"
+             class="uk.ac.ed.inf.biopepa.ui.views.BioPEPACompRelationsView"
+             icon="icons/sample.gif"
+             id="uk.ac.ed.inf.biopepa.ui.views.BioPEPACompRelationsView"
+             name="Component Relations">
+       </view>
+    </extension>
+    <extension
+          point="org.eclipse.ui.perspectiveExtensions">
+       <perspectiveExtension
+             targetID="org.eclipse.jdt.ui.JavaPerspective">
+          <view
+                id="uk.ac.ed.inf.biopepa.ui.views.BioPEPACompRelationsView"
+                ratio="0.5"
+                relationship="right"
+                relative="org.eclipse.ui.views.TaskList">
+          </view>
+       </perspectiveExtension>
+    </extension>
+    <extension
+          point="org.eclipse.help.contexts">
+       <contexts
+             file="contexts.xml">
+       </contexts>
+    </extension>
+   
+
+</plugin>

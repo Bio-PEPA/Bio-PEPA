@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.ed.inf.common.feature"
+      label="Enabling Features"
+      version="0.0.10"
+      provider-name="LFCS - The University of Edinburgh">
+
+   <description>
+      This features provides components to the Eclipse framework which are used by all the Eclipse plug-ins provided developed at LFCS.
+   </description>
+
+   <copyright>
+      This plug-in is copyright The University of Edinburgh
+   </copyright>
+
+   <license url="http://www.gnu.org/licenses/gpl-3.0.txt">
+      The contents of this feature are released under the GPL.
+   </license>
+
+   <url>
+      <update label="LFCS Updates" url="http://homepages.inf.ed.ac.uk/mtribast/update/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.core.variables"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.birt.chart.ui"/>
+   </requires>
+
+   <plugin
+         id="uk.ac.ed.inf.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.10"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.ed.inf.common.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.10"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.ed.inf.common.ui.plotting"
+         download-size="0"
+         install-size="0"
+         version="0.0.10"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.ed.inf.common.ui.plotview"
+         download-size="0"
+         install-size="0"
+         version="0.0.10"
+         unpack="false"/>
+
+</feature>

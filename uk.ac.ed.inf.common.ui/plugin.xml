@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.ed.inf.common.ui.lfcs"
+            name="LFCS Views">
+      </category>
+   </extension>
+
+</plugin>

@@ -1,0 +1,183 @@
+/*******************************************************************************
+ * Copyright (c) 2009 University of Edinburgh.
+ * All rights reserved. This program and the accompanying materials are made
+ * available under the terms of the BSD Licence, which accompanies this feature
+ * and can be downloaded from http://groups.inf.ed.ac.uk/pepa/update/licence.txt
+ ******************************************************************************/
+package uk.ac.ed.inf.biopepa.core.compiler;
+
+import uk.ac.ed.inf.biopepa.core.BioPEPAException;
+import uk.ac.ed.inf.biopepa.core.compiler.ProblemInfo.Severity;
+import uk.ac.ed.inf.biopepa.core.dom.*;
+import uk.ac.ed.inf.biopepa.core.sba.ExperimentSet.ExperimentLine;
+
+public class ExpressionEvaluatorVisitor extends DefaultCompilerVisitor {
+
+	protected CompiledExpression node = null;
+
+	public ExpressionEvaluatorVisitor(ModelCompiler compiler) {
+		super(compiler);
+	}
+
+	public CompiledExpression getExpressionNode() {
+		return node;
+	}
+
+	@Override
+	public boolean visit(Name name) throws BioPEPAException {
+		String identifier = name.getIdentifier();
+		if (identifier == null)
+			throw new IllegalArgumentException();
+		if (identifier == compiler.getCurrentlyVisitedVariable()) {
+			compiler.problemRequestor.accept(ProblemKind.CIRCULAR_USAGE, name);
+			throw new CompilerException();
+		}
+		
+		/* Check if the variable is dynamic in which case it cannot be
+		 * compiled.
+		 */
+		if (compiler.isDynamic(identifier)) {
+			node = new CompiledDynamicComponent(identifier);
+			return true;
+		} else {
+			VariableData data = compiler.checkAndGetVariableData(identifier);
+			if (data == null) {
+				// variable not yet defined
+				compiler.problemRequestor.accept(ProblemKind.VARIABLE_USED_BUT_NOT_DEFINED, name);
+				throw new CompilerException();
+			}
+			/*
+			 * So if the variable is not dynamic then we still set the expanded form
+			 * to CompiledDynamicComponent.
+			 */
+			node = data.getValue().clone();
+			node.setExpandedForm(new CompiledDynamicComponent(identifier));
+			return true;
+		}
+	}
+
+	@Override
+	public boolean visit(InfixExpression infixExpression) throws BioPEPAException {
+		ExpressionEvaluatorVisitor vlhs = new ExpressionEvaluatorVisitor(compiler);
+		infixExpression.getLeftHandSide().accept(vlhs);
+		ExpressionEvaluatorVisitor vrhs = new ExpressionEvaluatorVisitor(compiler);
+		infixExpression.getRightHandSide().accept(vrhs);
+		if (vlhs.node instanceof CompiledNumber && vrhs.node instanceof CompiledNumber) {
+			Number number;
+			CompiledNumber lenn = ((CompiledNumber) vlhs.node);
+			CompiledNumber renn = ((CompiledNumber) vrhs.node);
+			switch (infixExpression.getOperator()) {
+			case PLUS:
+				if (lenn.evaluatesToDouble() || renn.evaluatesToDouble())
+					number = new Double(lenn.doubleValue() + renn.doubleValue());
+				else
+					number = new Long(lenn.longValue() + renn.longValue());
+				break;
+			case MINUS:
+				if (lenn.evaluatesToDouble() || renn.evaluatesToDouble())
+					number = new Double(lenn.doubleValue() - renn.doubleValue());
+				else
+					number = new Long(lenn.longValue() - renn.longValue());
+				break;
+			case TIMES:
+				if (lenn.evaluatesToDouble() || renn.evaluatesToDouble())
+					number = new Double(lenn.doubleValue() * renn.doubleValue());
+				else
+					number = new Long(lenn.longValue() * renn.longValue());
+				break;
+			case DIVIDE:
+				if (renn.doubleValue() == 0.00) {
+					compiler.problemRequestor.accept(Severity.ERROR, "Divide by zero.", infixExpression);
+					throw new CompilerException();
+				}
+				if (lenn.evaluatesToLong() && renn.evaluatesToLong()) {
+					long l = lenn.longValue(), r = renn.longValue();
+					long a = l / r;
+					if (a * r == l) {
+						number = new Long(a);
+						break;
+					}
+				}
+				number = new Double(lenn.doubleValue() / renn.doubleValue());
+				break;
+			case POWER:
+				double d = Math.pow(lenn.doubleValue(), renn.doubleValue());
+				if (Double.isNaN(d) || Double.isInfinite(d)) {
+					compiler.problemRequestor
+							.accept(Severity.ERROR, "Cannot evaluate the expression.", infixExpression);
+					throw new CompilerException();
+				}
+				if ((d - ((long) d)) != 0.00)
+					number = new Double(d);
+				else
+					number = new Long(((long) d));
+				break;
+			default:
+				compiler.problemRequestor.accept(ProblemKind.INVALID_OPERATOR_FOR_DOUBLE, infixExpression);
+				throw new CompilerException();
+			}
+			node = new CompiledNumber(number);
+			// Set expandedForm if required
+			if (lenn.hasExpandedForm() || renn.hasExpandedForm()) {
+				CompiledOperatorNode eNode = new CompiledOperatorNode();
+				eNode.setOperator(infixExpression.getOperator());
+				if (lenn.hasExpandedForm())
+					eNode.left = lenn.expandedForm;
+				else
+					eNode.left = lenn;
+				if (renn.hasExpandedForm())
+					eNode.right = renn.expandedForm;
+				else
+					eNode.right = renn;
+				node.setExpandedForm(eNode);
+			}
+			return true;
+		}
+		CompiledOperatorNode tnode = new CompiledOperatorNode();
+		tnode.setOperator(infixExpression.getOperator());
+		tnode.setLeft(vlhs.node);
+		tnode.setRight(vrhs.node);
+		node = tnode;
+		return true;
+	}
+
+	@Override
+	public boolean visit(NumberLiteral numberLiteral) throws BioPEPAException {
+		Number number;
+		try {
+			number = Long.parseLong(numberLiteral.getToken());
+		} catch (NumberFormatException e1) {
+			try {
+				number = Double.parseDouble(numberLiteral.getToken());
+			} catch (NumberFormatException e2) {
+				compiler.problemRequestor.accept(ProblemKind.INVALID_NUMBER_LITERAL, numberLiteral);
+				throw new CompilerException();
+			}
+		}
+		node = new CompiledNumber(number);
+		return true;
+	}
+
+	@Override
+	public boolean visit(FunctionCall functionCall) throws BioPEPAException {
+		IPredefinedFunctionEvaluator evaluator;
+		evaluator = CompiledFunction.getFunctionEvaluator(compiler, functionCall);
+		try {
+			node = evaluator.evaluate();
+		} catch (EvaluationException e) {
+			// Already handled by the code throwing the EvaluationException
+		}
+		return true;
+	}
+
+	@Override
+	public boolean visit(SystemVariable variable) throws BioPEPAException {
+		switch (variable.getVariable()) {
+		case TIME:
+			node = new CompiledSystemVariable(CompiledSystemVariable.Variable.TIME);
+			break;
+		default:
+		}
+		return true;
+	}
+}

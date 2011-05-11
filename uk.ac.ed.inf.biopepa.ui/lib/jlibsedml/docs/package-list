@@ -1,0 +1,6 @@
+org.sedml
+org.sedml.applications
+org.sedml.applications.copasi
+org.sedml.applications.vcell
+org.sedml.modelsupport
+org.sedml.validation

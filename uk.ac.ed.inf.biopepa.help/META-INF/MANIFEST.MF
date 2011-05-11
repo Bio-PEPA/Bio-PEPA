@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BioPEPA Help
+Bundle-SymbolicName: uk.ac.ed.inf.biopepa.help;singleton:=true
+Bundle-Version: 0.2.1
+Bundle-Vendor: PEPA Group

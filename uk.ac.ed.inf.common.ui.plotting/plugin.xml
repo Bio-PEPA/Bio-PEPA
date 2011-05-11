@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.birt.core.ui.taskWizards">
+      <taskWizard
+            tasklist="org.eclipse.birt.chart.ui.swt.wizard.TaskFormatChart"
+            wizardID="uk.ac.ed.inf.common.ui.plotting.taskWizard">
+      </taskWizard>
+   </extension>
+
+
+</plugin>

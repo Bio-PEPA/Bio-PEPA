@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project uk.ac.ed.inf.biopepa.cl">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/command-line-bin/biopepa.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="uk.ac.ed.inf.biopepa.cl.BioPEPACommandLine"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.cl/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/libraries/numericalMethods/numericalMethods.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/libraries/jlibsedml.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/libraries/opencsv-2.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.core.runtime_3.6.0.v20100505.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.osgi_3.6.1.R36x_v20100806.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.core.runtime.compatibility.registry_3.3.0.v20100520/runtime_registry_compatibility.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.equinox.registry_3.5.0.v20100503.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.equinox.preferences_3.3.0.v20100503.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.core.contenttype_3.4.100.v20100505-1235.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/disk/scratch/Programs/eclipse/plugins/org.eclipse.equinox.app_1.3.1.R36x_v20100803.jar"/>
+            <fileset dir="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/runtime/java-cup-11a-runtime.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/libraries/systemsbiology.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/afs/inf.ed.ac.uk/user/a/aclark6/workspace/uk.ac.ed.inf.biopepa.core/libraries/jsbml-0.8-b1-with-dependencies.jar"/>
+        </jar>
+    </target>
+</project>

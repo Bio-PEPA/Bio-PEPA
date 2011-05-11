@@ -1,0 +1,63 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<h1>Chart API - Code Snippets</h1>
+			This section contains three examples of usage of the Chart API 
+			to generate pie charts, bar charts, and line charts. See javadoc 
+			for more information on the API-visible class. 
+			 
+			<h3>Pie chart</h3>
+			To create a pie chart, you will need an instance of
+			<code>InfoWithoutAxes</code> to be initialised to an 
+			array of categories and a corresponding array of values.
+<pre>
+InfoWithoutAxes info = new InfoWithoutAxes();
+info.setCategories(new String[] { "doA", "doB", "doC" });
+info.setValues(new double[] { 0.5, 2, 1.25 });
+info.setShowLegend(true);
+info.setGraphTitle("Utilisation");
+info.setHas3DEffect(true);
+IChart chart = Plotting.getPlottingTools().createPieChart(info);
+</pre>
+<img src="img/piechart.png"/>
+
+<h3>Bar chart</h3>
+<pre>
+InfoWithAxes info = new InfoWithAxes();
+Info.setCategories(new String[] { "doA", "doB", "doC" });
+info.getYSeries().add(Series.create(
+	new double[] { 0.5, 2, 1.25 }, "First experiment"));
+info.getYSeries().add(Series.create(
+	new double[] { 0.9, 1.6, 0.7 }, "Second experiment"));
+info.setShowLegend(true);
+info.setYLabel("Steady-state throughput");
+info.setXSeries(Series.create(new double[0], "Action type"));
+info.setGraphTitle("Throughput");
+info.setHas3DEffect(true);
+IChart chart = Plotting.getPlottingTools().createBarChart(info);
+</pre>
+
+<img src="img/barchart.png"/>
+<h3>Line chart</h3>
+<pre>
+InfoWithAxes info = new InfoWithAxes();
+double[] xValues = new double[] { 1, 5, 20};
+double[] yValues = new double[] { 3, 1, 7} ;
+info.setXSeries(Series.create(xValues, "Parameter"));
+info.getYSeries().add(Series.create(yValues, "First"));
+info.setShowLegend(true);
+info.setYLabel("Measure");
+info.setGraphTitle("Experimentation");
+info.setHas3DEffect(false);
+//info.setShowLegend(true);
+IChart chart = Plotting.getPlottingTools().createTimeSeriesChart(info);
+</pre>
+<img src="img/linechart.png"/>
+
+<h3>How to display a chart</h3>
+To display a chart, a client may use <code>
+new ChartDialog(window.getShell(), chart).open()
+</code>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body><h1 id="JlibSEDMLHowto">JlibSEDML How-to</h1><ol style="list-style: none;"><li><a href="#JlibSEDMLHowto">JlibSEDML How-to</a><ol style="list-style: none;"><li><a href="#Introduction">Introduction</a><ol style="list-style: none;"><li><a href="#Licensing">Licensing</a></li></ol></li><li><a href="#CreatingaSEDMLdocument">Creating a SED-ML document</a><ol style="list-style: none;"><li><a href="#Thebasics">The basics</a></li><li><a href="#Creatingasimulationelement">Creating a simulation element:</a></li><li><a href="#Creatingamodelelement">Creating a model element:</a></li><li><a href="#Creatingataskelement">Creating a task element: </a></li><li><a href="#Creatingdatagenerators">Creating data generators:</a></li><li><a href="#Generatingtheoutput">Generating the output</a></li><li><a href="#Writingthedocument">Writing the document</a><ol style="list-style: none;"><li><a href="#Basicexport">Basic export</a></li><li><a href="#ExportasaMIASEarchive.">Export as a MIASE archive.</a></li></ol></li><li><a href="#Conclusions">Conclusions</a></li></ol></li><li><a href="#ReadingaSEDMLdocument.">Reading a SED-ML document.</a><ol style="list-style: none;"><li><a href="#ReadinginaSEDMLfile">Reading in a SED-ML file:</a></li><li><a href="#Accessinginformationtorunasimulation">Accessing information to run a simulation:</a></li></ol></li><li><a href="#ManipulatingMathMLexpressions">Manipulating MathML expressions</a></li><li><a href="#Moreinformation">More information</a><ol style="list-style: none;"><li><a href="#ValidationofSEDMLdocuments">Validation of SED-ML documents</a></li><li><a href="#Moreexamples">More examples</a></li><li><a href="#Javadoc">Javadoc</a></li></ol></li></ol></li></ol><h2 id="Introduction">Introduction</h2><p>This document provides some help in getting started with using the jlibSEDML library for creating and manipulating Level 1, version 1 SED-ML documents. <br/>Jlibsedml does not run simulations itself, nor plot the results of a time course, so its use is not intended for end-users.  Instead, this library provides a toolkit to assist application developers in reading and writing SED-ML documents.</p><p>However, there are some examples in the source code which can be used to drive simulations using the Biomodels web-service and Copasi or VCell  libraries, if you have those libraries installed.</p><h3 id="Licensing">Licensing</h3><p>JlibSEDML is available under the terms of the MIT license:</p>Copyright &#169; 2010 Ion Moraru, Richard Adams, Dan Vasilescu, Anuradha Lakshminarayana. <p>Permission is hereby granted, free of charge, to any person obtaining a copy<br/> of this software and associated documentation files (the &#8220;Software&#8221;), to deal<br/> in the Software without restriction, including without limitation the rights<br/> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell<br/> copies of the Software, and to permit persons to whom the Software is<br/> furnished to do so, subject to the following conditions:</p><p>The above copyright notice and this permission notice shall be included in<br/> all copies or substantial portions of the Software.</p><p>THE SOFTWARE IS PROVIDED &#8220;AS IS&#8221;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR<br/> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,<br/> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE<br/> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER<br/> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,<br/> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN<br/> THE SOFTWARE.</p><h2 id="CreatingaSEDMLdocument">Creating a SED-ML document</h2><p>This use case is for clients that wish to provide the facility to their end-users of exporting a simulation configuration to SED-ML format.<br/>In this example, we&#8217;ll use the well understood <a href="http://en.wikipedia.org/wiki/Lotka–Volterra_equation">Lotka-Volterra</a> predator-prey model, given by the following equations which describe the rates of change of prey (x) and predators (y) over time.</p><pre>dx/dt = px -qxy
+dy/dt = rxy - sy
+</pre><p>With initial values x = 105, y = 8 and parameter values p = 0.4, q = 0.04, r = 0.02 and s=2, the following time course is achieved:</p><p><img border="0" src="lv1.png"/></p><p>If we plot predator vs prey, we see  a stable limit cycle is achieved:</p><p><img border="0" src="limit.png"/></p><p>Now let&#8217;s write a SED-ML file to  describe this simulation and its visualization:</p><h3 id="Thebasics">The basics</h3><p>There are five elements in a SEDML document:</p><ul><li>A description of the simulation algorithms used, time steps stc.,</li><li>A description of the models and where they can be obtained.</li><li><em>Tasks</em> - which link a model with a simulation.</li><li><em>DataGenerators</em> - these describe how the raw data should be transformed ( if at all).</li><li><em>Output</em> - either charts, 3d surface plots, or data sets, and their component elements.</li></ul><p>To start off we can create  new SEDML document object:</p><pre><code>SEDMLDocument doc = new SEDMLDocument();
+SedML sedml = doc.getSedMLModel();
+</code></pre><h3 id="Creatingasimulationelement">Creating a simulation element:</h3><p>Currently, SEDML just supports standard time courses. We create a simulation with the following arguments :</p><ul><li>a unique id (used for cross-referencing).</li><li>an optional human-readable name ( this can be null or empty ).</li><li>the start time  point.</li><li>output start point. </li><li>output end point. </li></ul><p>E.g.,</p><p><code>Simulation sim = new UniformTimeCourse("id", "name", 0, 0, 10, 100);</code></p><p>will configure a simulation to start at time=0, and run for 10 time units with 100 time points. The output will also be generated from time=0.</p><p>Now we set the algorithm type. Algorithms are classified using the <a href="http://www.ebi.ac.uk/compneur-srv/kisao/">KisaoID system</a>. In this case, the results were generated using a Runge-Kutte 4th order solver:</p><p><code>sim.setAlgorithm(new Algorithm("KISAO:0000032"));</code></p><p>and we can add the simulation description to the top-level container.</p><p><code>sedml.addSimulation(sim);</code></p><h3 id="Creatingamodelelement">Creating a model element:</h3><p>Now we need to describe the model, and need to provide the following information:</p><ul><li>a unique id (used for cross-referencing).</li><li>an optional human-readable name ( this can be null or empty ).</li><li>The XML language used to describe the model.</li><li>A urn used to locate the mode;</li></ul><p><code>Model model = new Model("modelid", "any name", SUPPORTED_LANGUAGE.SBML_GENERIC.getURN(), "model.xml");</code><br/><code>sedml.addModel(model);</code></p><p>In this case, we  will bundle the  model as  a local file with the simulation description, so we give a local file name &#8211; but the urn could be a reference to an entry in <a href="http://www.ebi.ac.uk/biomodels">Biomodels</a>, for example.<br/>The class <code>SUPPORTED_LANGUAGE.java</code> provides a useful set of constants for the &#8216;language&#8217; attribute. </p><h3 id="Creatingataskelement">Creating a task element: </h3><p>A <em>Task</em> describes the application of a simulation to a model, linking the simulation and the model by cross references.</p><ul><li>a unique task id (used for cross-referencing).</li><li>an optional human-readable name ( this can be null or empty ).</li><li>a reference to the model to be used.</li><li>a reference to the simulation to be used.</li></ul><p><code>Task task1 = new Task("task1Id", "Run basic model", model.getId(), sim.getId());</code></p><p>The utility  of such an element is perhaps not so obvious until we have created several model definitions and simulation configurations; then, the ability to combine these in tasks will be more useful.</p><h3 id="Creatingdatagenerators">Creating data generators:</h3><p>Now we need to define what the data output is for each species in the model we&#8217;re interested in. Data Generator elements contain MathML which describes the output. In this case, we just want the raw values. Any variable referenced in the MathMl should be listed in a &#8216;ListOfVariables&#8217; section, which can be used to identify a species in a model. So :</p><p><code>ASTNode root = Libsedml.parseFormulaString("x");</code></p><p>This line converts a C-style string representation of a Math statement into an ASTNode, which we then set into the DataGenerator. In this case we are just using the variable name, so the MathML will look like:</p><pre><code>&lt;math&gt;
+ &lt;ci&gt;x&lt;/ci&gt;
+&lt;/math&gt;
+</code></pre><p><code>DataGenerator dgx = new DataGenerator("dg1", "dg1name",  root);</code></p><p>Now we have to define where the &#8216;x&#8217;  comes from, and from which model. SED-ML uses XPath queries to identify parts of a model. The class <code>SBMLSupport.java</code> provides some utility functions to identify parts of SBML models that are likely to be required by SED-ML.</p><pre><code>SBMLSupport support = new SBMLSupport();
+Variable var = new Variable("x", "x",task1.getId(), support.getXPathForSpecies("x"));
+
+// now add this variable to the data generator:
+dgx.addVariable(var);
+
+// and add the datagenerator to the document:
+sedml.addDataGenerator(dgx);
+
+We would also need to create dataenerators for the species 'y' and for time, as well.
+
+</code></pre><h3 id="Generatingtheoutput">Generating the output</h3><p>The first output we&#8217;ll create is a standard time course plot of time on the x-axis and the species amounts on the y-axis. To do this we&#8217;ll create a <em>Plot2D</em>, and then define the <em>Curves</em> on the plot:</p><p>The constructor for a Curve takes :</p><ul><li>An id</li><li>An optional name</li><li>Boolean for whether x-axis should be on a log scale</li><li>Boolean for whether y-axis should be on a log scale</li><li>Reference to a data generator for the x-axis</li><li>Reference to a data generator for the y-axis</li></ul><pre><code>	 Plot2D plot1 = new Plot2D("basicPlot", "basic Plot");
+	 
+	 Curve cv1 = new Curve("curve1ID","",false,false,time.getId(),dgx.getId());
+	 Curve cv2 = new Curve("curve2ID","",false,false,time.getId(),dgy.getId());
+	 plot1.addCurve(cv1);
+	 plot1.addCurve(cv2);
+	 sedml.addOutput(plot1);
+	 
+</code></pre><p>The second output will reproduce the limit-cycle plot:</p><pre><code>     Plot2D plot2 = new Plot2D("limitCycle", "limitCycle");
+	 Curve cv3 = new Curve("curve3ID","",false,false,dgx.getId(),dgy.getId());
+	 plot2.addCurve(cv3);
+	 sedml.addOutput(plot2);
+</code></pre><h3 id="Writingthedocument">Writing the document</h3><h4 id="Basicexport">Basic export</h4><p>Before writing the document we might want to check for errors:</p><pre><code>for (SedMLError err:doc.validate()){
+			System.out.println(err.getMessage());
+		}
+</code></pre><p>and we can export the document as follows:</p><p><code>String xmlAsString = doc.writewriteDocumentToString();</code><br/>or </p><pre><code>File mySEDMLFile = new File("sedml.xml");
+doc.writeDocument(mySEDMLFile);
+</code></pre><h4 id="ExportasaMIASEarchive.">Export as a MIASE archive.</h4><p>This export provides a self-contained archive of the SED-ML file and its models. </p><pre><code>			SEDMLDocument doc; // our SED-ML doc
+			File modelFile = new File("model.xml"); // our model file
+			
+			IModelContent [] models = Arrays.asList(
+					        		  new IModelContent []{new FileModelContent(modelFile)});
+			byte [] miase = Libsedml.writeMiaseArchive(new ArchiveComponents(models), doc);
+		
+</code></pre><p>Once we have the byte [] we can write in a standard way. I.e., </p><pre><code> File myoutputfile = new File("myoutputfile");
+ FileOutputStream fos = new FileOutputStream(myoutputfile);
+			fos.write(miase);
+			fos.flush();
+			fos.close();
+</code></pre><h3 id="Conclusions">Conclusions</h3><p>This has given a brief introduction to the API for writing SED-ML documents.  </p><h2 id="ReadingaSEDMLdocument.">Reading a SED-ML document.</h2><p>This section describes the use-case of  a simulation tool reading a SED-ML file and extracting the information it needs to run a simulation.</p><h3 id="ReadinginaSEDMLfile">Reading in a SED-ML file:</h3><pre><code>SEDMLDocument doc = Libsedml.readDocument(sedmlFile);
+//or 
+SEDMLDocument doc = Libsedml.readDocumentFromString(xmlString);
+
+</code></pre><p>You can now check the document for errors:</p><pre><code> doc.validate();
+ if(doc.hasErrors()) {
+     // ...
+     }
+ SedML sedml = doc.getSedMLModel();
+</code></pre><h3 id="Accessinginformationtorunasimulation">Accessing information to run a simulation:</h3><p>First of all we need to find out what tasks we have to run:</p><pre><code>List&lt;Task&gt; tasks = sedml.getTasks();
+if(tasks.size() == 0) {
+ // nothing to do, return
+ }
+Task task1 = tasks.get(0);
+
+// if we have no errors, cross-references are OK.
+	
+	 Simulation sim1 = sedml.getSimulation(taskRead.getSimulationReference());
+	 Model mRead = sedml.getModelWithId(taskRead.getModelReference());
+
+</code></pre><p>We might want to check if we can run the simulation algorithm..</p><pre><code> // check algorithm - can we read it ?
+	 String kisao=sim1.getAlgorithm().getKisaoID();
+	 KisaoTerm kt = KisaoOntology.getInstance().getTermById(kisao);
+	 
+	 if(!kt.is_a(KisaoOntology.ALGORITHM_WITH_DETERMINISTIC_RULES)) {
+	   // we can only handle ODE based systems; handle failure here
+	 }
+
+</code></pre><p>Similarly, can we handle the model XML?</p><pre><code> // check model - can we handle it??
+	 String lang = mRead.getLanguage();
+	 if(!lang.contains("sbml")){
+		 // we can read sbml only, so fail here if need be
+	 }
+	 
+</code></pre><p>Now we need to get hold of the actual model based on its URN - <br/>whether from a remote DB or by reading in a local file &#8211; this is outside the scope of SED-ML unless reading from an archive. The model element can optionally define changes to a reference model, for example, changing an initial concentration or parameter value.</p><pre><code>	 String modelAsXMLString = getModel();
+	 // now apply any changes to the model described.
+	 try {
+		String alteredModel = doc.getChangedModel(mRead.getId(),  modelAsXMLString);
+	} catch (XPathExpressionException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+</code></pre><p>You now have the simulation info, and the model, in order to correctly run the simulation.</p><p>If we were reading from a MIASE archive that contained the model, we can use the following API:</p><p><code>ArchiveComponents ac = Libsedml.readMiaseArchive(new FileInputStream("mymiase.zip"));</code></p><p>Models are encapsulated by <code>IModelContent</code> objects. </p><pre><code>List&lt;IModelContent&gt; models = ac.getModelFiles();
+IModelContent model1 = models.get(0);
+</code></pre><p>The getName() method in <code>IModelContent</code>  should return the model file name that is referenced in the SEDML document:</p><pre><code>String modelXML = model1.getContents(); // returns an XML String of the model.
+String modelFileName= model1.getName();
+</code></pre><p>Getting the SEDML document itself from the archive is straightforward:</p><p><code>SEDMLDocument doc = ac.getSedmlDocument();</code></p><h2 id="ManipulatingMathMLexpressions">Manipulating MathML expressions</h2><p>There are two elements in the SED-ML specification that use mathematical expressions &#8211; the <code>computeChange</code> sub-element of <code>Model</code> which describes how a value in a model should be changed; and the <code>DataGenerator</code> element. In a SED-ML file, these are described using MathML, but in the object model, math expressions are represented as  ASTNodes. For writing MathML expressions in SED-ML, these can be generated as follows:</p><p><code>ASTNode root = Libsedml.parseFormulaString(" sin(x)");</code></p><p>or programmatically using methods in <code>ASTNode</code>.</p><p>Mathematical manipulation is provided by the <a href="http://sourceforge.net/projects/jmathml/files/">JMathML</a> library, which contains further information about its usage.</p><h2 id="Moreinformation">More information</h2><h3 id="ValidationofSEDMLdocuments">Validation of SED-ML documents</h3><p>This library provides a a number of validation services to warn of any problems in the document. These include the following:</p><p>1. Validation against the SED-ML XML schema. This will catch basic XML syntax errors, and unknown or missing elements.<br/>2. Cross reference validation. For example, if a task refers to  a model ID that is not defined in this document, this will generate an error.<br/>3. Uniqueness of identifiers. All &#8216;id&#8217; attributes in a SED-ML document need to be unique.<br/>4. Time course validation &#8211; that the numerical values describing the time course are consistent. For example, <code>outputStartTime</code> must be &gt;= <code>initialStartTime</code><br/>5. KISAO identifiers &#8211; a warning is generated if the value of the KisaOID attribute in an <code>Algorithm</code> element is not a valid KISAO identifier.</p><p>It&#8217;s up to clients to decide how to handle these warnings. </p><h3 id="Moreexamples">More examples</h3><p>More example SED-ML documents can be found in the <strong>examples/</strong> folder of the <a href="http://sourceforge.net/projects/sed-ml/">SED-ML Sourceforge project</a>.</p><h3 id="Javadoc">Javadoc</h3><p>The Javadoc for the library provides more complete information on how to use the library.</p></body></html>

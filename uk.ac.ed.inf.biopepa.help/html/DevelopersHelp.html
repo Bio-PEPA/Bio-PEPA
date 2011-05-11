@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <title>Title</title>
+   </head>
+
+   <body>
+      <h2>
+         Developer's Guide to the BioPEPA Eclipse Plug-in
+      </h2>
+      	<h3>
+      	Introduction
+      	</h3>
+      	<p>
+         This document serves to illuminate those seeking to
+         extend the functionality of the BioPEPA Eclipse Plug-in.
+         Development has so far been carried out at the University of Edinburgh.
+        </p>
+        <h3>
+        	Obtaining the Source
+        </h3>
+        <p>
+        	The first thing you will need to do is obtain a copy of the source code. 
+        </p>
+        <h3>
+        	Using Cvs
+        </h3>
+        <p>
+        You will first need a cvs account, for which contact Informatics support.
+        If you are not a member of Informatics see someone related to the BioPEPA
+        project who is and they should be able to acquire one for you.
+        The server is simply cvs.inf.ed.ac.uk.
+        The repository path is /disk/cvs/pepa
+        </p>
+        <p>
+        In general work in your own branch, not that of HEAD.
+        You only really need to commit to HEAD when you are ready to make a release.
+        Of course if there are multiple people working at the same time then occasionally
+        you need to commit to HEAD such that each can incorporate each other's changes.
+        Otherwise you end up with two very separate versions, the first to commit to HEAD
+        experiences few problems but then the second may have a large number of conflicts.
+        In light of this, you should release often.
+        Commits to your own branch you preferably be one piece of work, that is the addition
+        of some new functionality or a bug fix. If a user reports a bug you should really do
+        the following
+          <ol>
+           <li> Create a new branch </li>
+           <li> Switch to the new branch and fix the bug </li>
+           <li> Commit to the branch </li>
+           <li> Switch to HEAD and merge in the bug fix</li>
+           <li> Release such that the user can use with the bug fixed </li>
+           <li> Switch back to your own branch</li>
+           <li> Merge in the changes of HEAD to your own branch</li>
+           <li> Continue working on what you were working on </li>
+          </ol>
+        Of course for many very minor bug fixes this is a lot of effort,
+        particularly if you aren't going to release because of the bug fix.
+        If, for example the user is willing to wait until the next release to
+        benefit from the bug-fix/feature addition.
+        Additionally when we switch to a new branch it is as useful to have a
+        separate 'bug-fixing' branch which is always used for this purpose rather
+        than create a bunch of extra branches.
+        </p>
+        <h3>
+        	Making A Release
+        </h3>
+        <p>
+        	This section will detail the steps involved in making a release
+        	of the BioPEPA-Eclipse software.
+        </p>
+        <ol>
+          <li> Make sure everything compiles and you are happy
+               with the source code
+          </li>
+          <li> Commit the changes to your branch of the CVS </li>
+          <li> Switch to the HEAD branch </li>
+          <li> Merge in the changes from your branch to HEAD.
+               This may involve conflict resolution. The start-tag that
+               you wish to merge from, should either be the root of your
+               branch if this is your first commit into HEAD or a tag you
+               created the last time you merged into HEAD. If you are unsure
+               essentially choose the latest TAG that you yourself made or
+               the root tag of your branch.
+          </li>
+          <li> Now we make a release from HEAD, first of all in each of the Manifest files:
+          uk.ac.ed.inf.biopepa.core.META-INF.Manifest (similarly for help and ui), bump the
+          version number up to that which you wish to release (eg 0.2.1).
+          </li>
+          <li>Bump the version number in uk.ac.ed.inf.biopepa.feature</li>
+          <li>You can try building and exporting everything from here, follow the instructions
+          under "Exporting". When Synchronising choose the middle option
+          "Copy version numbers from feature fragments ...".
+          </li>
+          <li>Now go to uk.ac.ed.inf.pepa.eclipse.feature and export from there.
+          Again follow the instructions in "Copy version numbers from feature fragments".
+          Check under the "Plugins" tab that all the features (the three for common, pepa and biopepa)
+          are present and at the correct version numbers.
+          Choose a new folder to export to.
+          </li>
+          <li> Choose Publishing/Update Site </li>
+          <li> Select a project name and location. Tick 'Generate web content'
+          <li> This will create an empty site and also take you to the Managing the Site
+          here you must add all the features you need and then click "Build All".
+          <li> Contact Stephen who will move your created directory to the update location on the PEPA website.</li>
+          <li> Now we make a release from HEAD, first of all in each of the Manifest files:
+          uk.ac.ed.inf.biopepa.core.META-INF.Manifest (similarly for help and ui), bump the
+          version number up to that which you wish to release (eg 0.2.1).
+          </li>
+          <li>Bump the version number in uk.ac.ed.inf.biopepa.feature</li>
+          <li>You can try building and exporting everything from here, follow the instructions
+          under "Exporting". When Synchronising choose the middle option
+          "Copy version numbers from feature fragments ...".
+          </li>
+          <li>Now go to uk.ac.ed.inf.pepa.eclipse.feature and export from there.
+          Again follow the instructions in "Copy version numbers from feature fragments".
+          Check under the "Plugins" tab that all the features (the three for common, pepa and biopepa)
+          are present and at the correct version numbers.
+          Choose a new folder to export to.
+          Also the 'available features' in the Export wizard should have all
+          the features selected that you wish to be available, this is probably
+          at least, biopepa, common and eclipse.ui. The only other available
+          one is (probably) pepe.emf.feature, I selected this but I doubt it's
+          really necessary.
+          </li>
+          <li> Choose Publishing/Update Site </li>
+          <li> Select a project name and location. Tick 'Generate web content'
+          <li> This will create an empty site and also take you to the Managing the Site
+          here you must add all the features you need and then click "Build All".
+          <li> Contact Stephen who will move your created directory to the update location on the PEPA website.</li>
+          <li> Switch back to your own branch </li>
+          <li> Merge in the changes that you have made to HEAD into your own
+               branch. When you do this you will most likely use 'Overwrite'
+               to solve any conflicts that arrive. The point is that here you
+               wish your branch to exactly the same as that of HEAD.
+          </li>
+          <li> <b>Tag</b> your branch with the current date and the release you just made </li>
+          <li> Continue hacking </li>
+        </ol>
+        Notes: Why don't we just make the release from your own branch?
+        Because someone else may have made a subsequent release and hence you
+        would both release with the same version number. If everyone releases from HEAD
+        then the version number is always bumped and always increasing.
+   </body>
+</html>
