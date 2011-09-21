@@ -1643,7 +1643,15 @@ public class BioPEPACommandLine {
 		}
 		
 		String[] componentsToView = sbaModel.getComponentNames();
-		parameters.setValue(Parameter.Components, componentsToView);
+		String[] variablesToView = sbaModel.getDynamicVariableNames();
+		String[] allToView = new String[componentsToView.length + variablesToView.length];
+		for (int i = 0; i < componentsToView.length; i++){
+			allToView[i] = componentsToView[i];
+		}
+		for (int i = 0; i < variablesToView.length; i++){
+			allToView[i + componentsToView.length] = variablesToView[i];
+		}
+		parameters.setValue(Parameter.Components, allToView);
 		
 		
 		int runs = getIndepentRuns(args, 1);
