@@ -103,7 +103,7 @@ public class SBAReaction {
 		return r;
 	}
 
-	public static SBAReaction merge(SBAReaction one, SBAReaction two) {
+	public static List<SBAReaction> merge(SBAReaction one, SBAReaction two) {
 		if (one == null)
 			throw new NullPointerException("First SBAReaction cannot be null.");
 		if (two == null)
@@ -114,13 +114,24 @@ public class SBAReaction {
 			throw new IllegalArgumentException("Cannot merge reversible and non-reversible reactions.");
 		if (one.transportation != two.transportation)
 			throw new IllegalArgumentException("Cannot merge transportation reactions.");
+		
+		/*
+		 * This is where we need to solve our locations bug.
+		 * These reactions should not be blindly merged. Previously this method had returned
+		 * a single reaction, I've changed the types, but the semantics are still the same.
+		 * We need to return more than one reaction here. It depends on what sides have what
+		 * located species etc.
+		 */
 		SBAReaction r = one.clone();
 		r.reversible = one.reversible;
 		for (SBAComponentBehaviour cb : two.reactants)
 			r.reactants.add(cb);
 		for (SBAComponentBehaviour cb : two.products)
 			r.products.add(cb);
-		return r;
+		
+		LinkedList<SBAReaction> result = new LinkedList<SBAReaction>();
+		result.add(r);
+		return result;
 	}
 
 	/*

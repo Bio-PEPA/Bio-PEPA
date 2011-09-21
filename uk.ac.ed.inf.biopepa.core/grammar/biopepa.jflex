@@ -124,7 +124,10 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
 
 TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
-EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}
+/* Note no LineTerminator at the end here, since that would not allow a
+ * line comment on the final line of the file
+ */
+EndOfLineComment     = "//" {InputCharacter}*
 DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent       = ( [^*] | \*+ [^/*] )*
 
