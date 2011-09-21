@@ -52,9 +52,9 @@ public class SBMLExport implements Exporter {
 				.append(term);
 		sb.append(term).append(xmlHeader).append(term);
 		sb.append(sbmlHeader).append(term);
-		sb.append("\t<model id=\"...\"").append(term);
-		sb.append("\t\t...").append(term);
-		sb.append("\t</model>").append(term);
+		sb.append("  <model id=\"...\"").append(term);
+		sb.append("    ...").append(term);
+		sb.append("  </model>").append(term);
 		sb.append("</sbml>");
 		description = sb.toString();
 	}
@@ -124,7 +124,7 @@ public class SBMLExport implements Exporter {
 		// Header xml
 		sbml.append(xmlHeader).append(term);
 		sbml.append(sbmlHeader).append(term);
-		sbml.append("\t<model id=\"");
+		sbml.append("  <model id=\"");
 		if (name != null && !name.equals(""))
 			sbml.append(flattenName(name));
 		else
@@ -135,41 +135,41 @@ public class SBMLExport implements Exporter {
 		assignmentIndentation = 3;
 		rulesIndentation = 3;
 		// Reactions
-		reactions.append("\t\t<listOfReactions>").append(term);
+		reactions.append("    <listOfReactions>").append(term);
 		for (SBAReaction rn : model.getReactions())
 			reactions.append(toSBML(rn, 3));
-		reactions.append("\t\t</listOfReactions>").append(term);
+		reactions.append("    </listOfReactions>").append(term);
 		// Footer xml
-		reactions.append("\t</model>").append(term);
+		reactions.append("  </model>").append(term);
 		reactions.append("</sbml>");
 		if (fMM || H) {
-			sbml.append("\t\t<listOfFunctionDefinitions>").append(term);
+			sbml.append("    <listOfFunctionDefinitions>").append(term);
 			if (fMM)
 				sbml.append(sbmlFMM(3));
 			if (H)
 				sbml.append(sbmlH(3));
-			sbml.append("\t\t</listOfFunctionDefinitions>").append(term);
+			sbml.append("    </listOfFunctionDefinitions>").append(term);
 		}
 		// Compartments
-		sbml.append("\t\t<listOfCompartmentTypes>").append(term);
+		sbml.append("    <listOfCompartmentTypes>").append(term);
 		for (CompartmentData.Type type : CompartmentData.Type.values())
-			sbml.append("\t\t\t").append(toSBML(type)).append(term);
-		sbml.append("\t\t</listOfCompartmentTypes>").append(term);
-		sbml.append("\t\t<listOfCompartments>").append(term);
+			sbml.append("      ").append(toSBML(type)).append(term);
+		sbml.append("    </listOfCompartmentTypes>").append(term);
+		sbml.append("    <listOfCompartments>").append(term);
 		if (compartments.length > 0) // is this correct?
 			for (int i = 0; i < compartments.length; i++) {
-				sbml.append("\t\t\t");
+				sbml.append("      ");
 				sbml.append(toSBML(compartments[i]));
 				sbml.append(term);
 			}
 		else
-			sbml.append("\t\t\t<compartment id=\"main\" size=\"1.0\"/>").append(term);
-		sbml.append("\t\t</listOfCompartments>").append(term);
+			sbml.append("      <compartment id=\"main\" size=\"1.0\"/>").append(term);
+		sbml.append("    </listOfCompartments>").append(term);
 		// Species
-		sbml.append("\t\t<listOfSpecies>").append(term);
+		sbml.append("    <listOfSpecies>").append(term);
 		for (int i = 0; i < components.length; i++)
-			sbml.append("\t\t\t").append(toSBML(components[i])).append(term);
-		sbml.append("\t\t</listOfSpecies>").append(term);
+			sbml.append("      ").append(toSBML(components[i])).append(term);
+		sbml.append("    </listOfSpecies>").append(term);
 				
 		// We'll output the initial assignments after the list of
 		// parameters, I'm not sure if this is required by the spec
@@ -184,19 +184,19 @@ public class SBMLExport implements Exporter {
 		
 		// Parameters
 		if (parameters.length() > 0) {
-			sbml.append("\t\t<listOfParameters>").append(term);
+			sbml.append("    <listOfParameters>").append(term);
 			sbml.append(parameters);
-			sbml.append("\t\t</listOfParameters>").append(term);
+			sbml.append("    </listOfParameters>").append(term);
 		}
 		if (initialAssignment.length() > 0) {
-			sbml.append("\t\t<listOfInitialAssignments>").append(term);
+			sbml.append("    <listOfInitialAssignments>").append(term);
 			sbml.append(initialAssignment);
-			sbml.append("\t\t</listOfInitialAssignments>").append(term);
+			sbml.append("    </listOfInitialAssignments>").append(term);
 		}
 		if (rules.length() > 0) {
-			sbml.append("\t\t<listOfRules>").append(term);
+			sbml.append("    <listOfRules>").append(term);
 			sbml.append(rules);
-			sbml.append("\t\t</listOfRules>").append(term);
+			sbml.append("    </listOfRules>").append(term);
 		}
 		sbml.append(reactions);
 		return sbml.toString();
@@ -208,7 +208,7 @@ public class SBMLExport implements Exporter {
 		sb.append(indent).append("<initialAssignment symbol=\"");
 		sb.append(comp.getName());
 		sb.append("\">").append(term);
-		sb.append(indent).append("\t").append("<math xmlns=\"http://www.w3.org/1998/Math/MathML\">").append(term);
+		sb.append(indent).append("  ").append("<math xmlns=\"http://www.w3.org/1998/Math/MathML\">").append(term);
 		
 		CompiledExpression initAmountExp = comp.getInitialAmountExpression();
 		SBMLRateGenerator sbmlRG = 
@@ -216,9 +216,9 @@ public class SBMLExport implements Exporter {
 									indentation + 3);
 		sbmlRG.generate();
 		String initialAmount = sbmlRG.toString();
-		sb.append(indent).append("\t\t").append(initialAmount).append(term);
+		sb.append(indent).append("    ").append(initialAmount).append(term);
 		
-    	sb.append(indent).append("\t").append("</math>").append(term);
+    	sb.append(indent).append("  ").append("</math>").append(term);
     	sb.append(indent).append("</initialAssignment>").append(term);
     	
     	return sb.toString();
@@ -259,7 +259,7 @@ public class SBMLExport implements Exporter {
 	private String makeIndentation(int indentation){
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < indentation; i++)
-			sb.append("\t");
+			sb.append("  ");
 		String indent = sb.toString();
 		return indent;
 	}
@@ -268,28 +268,28 @@ public class SBMLExport implements Exporter {
 		String indent = makeIndentation(indentation);
 		StringBuilder sb = new StringBuilder();
 		sb.append(indent).append("<functionDefinition id=\"fMM\">").append(term);
-		sb.append(indent).append("\t").append(sbmlOpeningMathElement).append(term);
-		sb.append(indent).append("\t\t").append("<lambda>").append(term);
-		sb.append(indent).append("\t\t\t").append("<bvar><ci> v_M </ci></bvar>").append(term);
-		sb.append(indent).append("\t\t\t").append("<bvar><ci> K_M </ci></bvar>").append(term);
-		sb.append(indent).append("\t\t\t").append("<bvar><ci> S </ci></bvar>").append(term);
-		sb.append(indent).append("\t\t\t").append("<bvar><ci> E </ci></bvar>").append(term);
-		sb.append(indent).append("\t\t\t").append("<apply>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("<divide/>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("<apply>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<times/>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<ci> v_M </ci>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<ci> S </ci>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<ci> E </ci>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("</apply>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("<apply>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<plus/>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<ci> K_M </ci>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<ci> S </ci>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("</apply>").append(term);
-		sb.append(indent).append("\t\t\t").append("</apply>").append(term);
-		sb.append(indent).append("\t\t").append("</lambda>").append("").append(term);
-		sb.append(indent).append("\t").append(sbmlClosingMathElement).append("").append(term);
+		sb.append(indent).append("  ").append(sbmlOpeningMathElement).append(term);
+		sb.append(indent).append("    ").append("<lambda>").append(term);
+		sb.append(indent).append("      ").append("<bvar><ci> v_M </ci></bvar>").append(term);
+		sb.append(indent).append("      ").append("<bvar><ci> K_M </ci></bvar>").append(term);
+		sb.append(indent).append("      ").append("<bvar><ci> S </ci></bvar>").append(term);
+		sb.append(indent).append("      ").append("<bvar><ci> E </ci></bvar>").append(term);
+		sb.append(indent).append("      ").append("<apply>").append(term);
+		sb.append(indent).append("        ").append("<divide/>").append(term);
+		sb.append(indent).append("        ").append("<apply>").append(term);
+		sb.append(indent).append("          ").append("<times/>").append(term);
+		sb.append(indent).append("          ").append("<ci> v_M </ci>").append(term);
+		sb.append(indent).append("          ").append("<ci> S </ci>").append(term);
+		sb.append(indent).append("          ").append("<ci> E </ci>").append(term);
+		sb.append(indent).append("        ").append("</apply>").append(term);
+		sb.append(indent).append("        ").append("<apply>").append(term);
+		sb.append(indent).append("          ").append("<plus/>").append(term);
+		sb.append(indent).append("          ").append("<ci> K_M </ci>").append(term);
+		sb.append(indent).append("          ").append("<ci> S </ci>").append(term);
+		sb.append(indent).append("        ").append("</apply>").append(term);
+		sb.append(indent).append("      ").append("</apply>").append(term);
+		sb.append(indent).append("    ").append("</lambda>").append("").append(term);
+		sb.append(indent).append("  ").append(sbmlClosingMathElement).append("").append(term);
 		sb.append(indent).append("</functionDefinition>").append(term);
 		return sb.toString();
 	}
@@ -297,30 +297,30 @@ public class SBMLExport implements Exporter {
 	private String sbmlH(int indentation) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < indentation; i++)
-			sb.append("\t");
+			sb.append("  ");
 		String indent = sb.toString();
 		sb = new StringBuilder();
 		sb.append(indent).append("<functionDefinition id=\"H\">").append(term);
-		sb.append(indent).append("\t").append(sbmlOpeningMathElement).append(term);
-		sb.append(indent).append("\t\t").append("<lambda>").append(term);
-		sb.append(indent).append("\t\t\t").append("<bvar><ci> X </ci></bvar>").append(term);
-		// sb.append(indent).append("\t\t\t").append("<apply>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("<piecewise>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<piece>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t").append("<cn> 1 </cn>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t").append("<apply>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t\t").append("<gt/>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t\t").append("<ci> X </ci>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t\t").append("<cn> 0 </cn>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t").append("</apply>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("</piece>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("<otherwise>").append(term);
-		sb.append(indent).append("\t\t\t\t\t\t").append("<cn> 0 </cn>").append(term);
-		sb.append(indent).append("\t\t\t\t\t").append("</otherwise>").append(term);
-		sb.append(indent).append("\t\t\t\t").append("</piecewise>").append(term);
-		// sb.append(indent).append("\t\t\t").append("</apply>").append(term);
-		sb.append(indent).append("\t\t").append("</lambda>").append("").append(term);
-		sb.append(indent).append("\t").append(sbmlClosingMathElement).append("").append(term);
+		sb.append(indent).append("  ").append(sbmlOpeningMathElement).append(term);
+		sb.append(indent).append("    ").append("<lambda>").append(term);
+		sb.append(indent).append("      ").append("<bvar><ci> X </ci></bvar>").append(term);
+		// sb.append(indent).append("      ").append("<apply>").append(term);
+		sb.append(indent).append("        ").append("<piecewise>").append(term);
+		sb.append(indent).append("          ").append("<piece>").append(term);
+		sb.append(indent).append("            ").append("<cn> 1 </cn>").append(term);
+		sb.append(indent).append("            ").append("<apply>").append(term);
+		sb.append(indent).append("              ").append("<gt/>").append(term);
+		sb.append(indent).append("              ").append("<ci> X </ci>").append(term);
+		sb.append(indent).append("              ").append("<cn> 0 </cn>").append(term);
+		sb.append(indent).append("            ").append("</apply>").append(term);
+		sb.append(indent).append("          ").append("</piece>").append(term);
+		sb.append(indent).append("          ").append("<otherwise>").append(term);
+		sb.append(indent).append("            ").append("<cn> 0 </cn>").append(term);
+		sb.append(indent).append("          ").append("</otherwise>").append(term);
+		sb.append(indent).append("        ").append("</piecewise>").append(term);
+		// sb.append(indent).append("      ").append("</apply>").append(term);
+		sb.append(indent).append("    ").append("</lambda>").append("").append(term);
+		sb.append(indent).append("  ").append(sbmlClosingMathElement).append("").append(term);
 		sb.append(indent).append("</functionDefinition>").append(term);
 		return sb.toString();
 	}
@@ -362,7 +362,7 @@ public class SBMLExport implements Exporter {
 	private String toSBML(SBAReaction reaction, int indentation) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < indentation; i++)
-			sb.append("\t");
+			sb.append("  ");
 		String tabs = sb.toString();
 		sb = new StringBuilder();
 		sb.append(tabs).append("<reaction id=\"");
@@ -376,39 +376,39 @@ public class SBMLExport implements Exporter {
 		List<SBAComponentBehaviour> list = reaction.getReactants();
 		for (SBAComponentBehaviour outerCB : list)
 			if (outerCB.getType().equals(Type.REACTANT)) {
-				sb.append(tabs).append("\t<listOfReactants>").append(term);
+				sb.append(tabs).append("  <listOfReactants>").append(term);
 				for (SBAComponentBehaviour cb : list)
 					if (cb.getType().equals(Type.REACTANT))
-						sb.append(tabs).append("\t\t").append(toSBML(cb)).append(term);
-				sb.append(tabs).append("\t</listOfReactants>").append(term);
+						sb.append(tabs).append("    ").append(toSBML(cb)).append(term);
+				sb.append(tabs).append("  </listOfReactants>").append(term);
 				break;
 			}
 		// Products
 		list = reaction.getProducts();
 		if (list.size() > 0) {
-			sb.append(tabs).append("\t<listOfProducts>").append(term);
+			sb.append(tabs).append("  <listOfProducts>").append(term);
 			for (SBAComponentBehaviour cb : list)
-				sb.append(tabs).append("\t\t").append(toSBML(cb)).append(term);
-			sb.append(tabs).append("\t</listOfProducts>").append(term);
+				sb.append(tabs).append("    ").append(toSBML(cb)).append(term);
+			sb.append(tabs).append("  </listOfProducts>").append(term);
 		}
 		// Modifiers
 		list = reaction.getReactants();
 		for (SBAComponentBehaviour outerCB : list)
 			if (!outerCB.getType().equals(Type.REACTANT)) {
-				sb.append(tabs).append("\t<listOfModifiers>").append(term);
+				sb.append(tabs).append("  <listOfModifiers>").append(term);
 				for (SBAComponentBehaviour cb : list)
 					if (!cb.getType().equals(Type.REACTANT))
-						sb.append(tabs).append("\t\t").append(toSBML(cb)).append(term);
-				sb.append(tabs).append("\t</listOfModifiers>").append(term);
+						sb.append(tabs).append("    ").append(toSBML(cb)).append(term);
+				sb.append(tabs).append("  </listOfModifiers>").append(term);
 				break;
 			}
-		sb.append(tabs).append("\t<kineticLaw>").append(term);
-		sb.append(tabs).append("\t\t").append(SBMLExport.sbmlOpeningMathElement).append(term);
+		sb.append(tabs).append("  <kineticLaw>").append(term);
+		sb.append(tabs).append("    ").append(SBMLExport.sbmlOpeningMathElement).append(term);
 		SBMLRateGenerator sbmlRG = new SBMLRateGenerator(reaction, indentation + 3);
 		sbmlRG.generate();
 		sb.append(sbmlRG.toString());
-		sb.append(tabs).append("\t\t").append(SBMLExport.sbmlClosingMathElement).append(term);
-		sb.append(tabs).append("\t</kineticLaw>").append(term);
+		sb.append(tabs).append("    ").append(SBMLExport.sbmlClosingMathElement).append(term);
+		sb.append(tabs).append("  </kineticLaw>").append(term);
 		sb.append(tabs).append("</reaction>").append(term);
 		return sb.toString();
 	}
@@ -416,10 +416,12 @@ public class SBMLExport implements Exporter {
 	private String toSBML(SBAComponentBehaviour component) {
 		StringBuilder sb = new StringBuilder();
 		Type type = component.getType();
-		if (type.equals(Type.CATALYST) || type.equals(Type.INHIBITOR))
+		if (type.equals(Type.CATALYST) || type.equals(Type.INHIBITOR) ||
+				type.equals(Type.MODIFIER)){
 			sb.append("<modifierSpeciesReference");
-		else
+		} else {
 			sb.append("<speciesReference");
+		}
 		sb.append(" species=\"");
 		String name = component.getName();
 		if (sbmlMap.containsKey(name))
@@ -694,7 +696,7 @@ public class SBMLExport implements Exporter {
 
 		private final void indentation() {
 			for (int i = 0; i < indentation; i++)
-				sb.append("\t");
+				sb.append("  ");
 		}
 
 		public String toString() {
@@ -712,7 +714,7 @@ public class SBMLExport implements Exporter {
 		} else
 			sName = name;
 		for (int i = 0; i < parameterIndendation; i++)
-			parameters.append("\t");
+			parameters.append("  ");
 		parameters.append("<parameter id=\"").append(sName).append("\"");
 		if (value != null){
 			parameters.append(" value=\"").append(value).append("\"");
@@ -733,12 +735,12 @@ public class SBMLExport implements Exporter {
 			sName = name;
 		StringBuilder indent = new StringBuilder();
 		for (int i = 0; i < assignmentIndentation; i++)
-			indent.append("\t");
+			indent.append("  ");
 		initialAssignment.append(indent).append("<initialAssignment symbol=\"");
 		initialAssignment.append(sName).append("\">").append(term);
-		initialAssignment.append(indent).append("\t").append(sbmlOpeningMathElement).append(term);
+		initialAssignment.append(indent).append("  ").append(sbmlOpeningMathElement).append(term);
 		initialAssignment.append(expression);
-		initialAssignment.append(indent).append("\t").append(sbmlClosingMathElement).append(term);
+		initialAssignment.append(indent).append("  ").append(sbmlClosingMathElement).append(term);
 		initialAssignment.append(indent).append("</initialAssignment>").append(term);
 	}
 
@@ -753,12 +755,12 @@ public class SBMLExport implements Exporter {
 			sName = name;
 		StringBuilder indent = new StringBuilder();
 		for (int i = 0; i < rulesIndentation; i++)
-			indent.append("\t");
+			indent.append("  ");
 		rules.append(indent).append("<assignmentRule variable=\"");
 		rules.append(sName).append("\">").append(term);
-		rules.append(indent).append("\t").append(sbmlOpeningMathElement).append(term);
+		rules.append(indent).append("  ").append(sbmlOpeningMathElement).append(term);
 		rules.append(expression);
-		rules.append(indent).append("\t").append(sbmlClosingMathElement).append(term);
+		rules.append(indent).append("  ").append(sbmlClosingMathElement).append(term);
 		rules.append(indent).append("</assignmentRule>").append(term);
 	}
 
