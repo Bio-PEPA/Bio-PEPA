@@ -195,11 +195,11 @@ public class ImportDataPage extends WizardPage {
 			while ((nextLine = reader.readNext()) != null) {
 				timesList.add(Double.parseDouble(nextLine[0].trim()));
 				double [] resultLine = new double [names.length];
-				for (int column = 1; column < names.length; column++){
+				for (int column = 0; column < names.length; column++){
 					if (column > nextLine.length){
 						resultLine[column] = 0;
 					} else {
-						double value = Double.parseDouble(nextLine[column].trim());
+						double value = Double.parseDouble(nextLine[column + 1].trim());
 						resultLine[column] = value;
 					}
 				}
