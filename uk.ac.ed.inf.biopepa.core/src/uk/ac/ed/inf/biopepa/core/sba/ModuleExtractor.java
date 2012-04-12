@@ -2,6 +2,7 @@ package uk.ac.ed.inf.biopepa.core.sba;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,10 +22,21 @@ public class ModuleExtractor {
 	private SBAModel sbaModel;
 	private Map<String, Number> components;
 	
+	/*
+	 * The idea is that we can allow multiple module extractions
+	 * but that each reaction must only go into exactly one module.
+	 */
+	private Set<SBAReaction> seen_reactions;
+	
 	public ModuleExtractor (SBAModel sbaModel, 
 			Map<String, Number> subModuleComps){
 		this.sbaModel = sbaModel;
 		this.components = subModuleComps;
+		this.seen_reactions = new HashSet<SBAReaction>();
+	}
+	
+	public void reset_seen_reactions(){
+		this.seen_reactions.clear();
 	}
 	
 	
@@ -240,6 +252,17 @@ public class ModuleExtractor {
 			// of components affects the rate of the reaction.
 			// So first obtain all the components which affect the
 			// rate of the current reaction
+			
+			// If the resultant set is now empty we know that there
+			// are no components which affect the rate of this reaction
+			// that we do not intend to keep, hence we can keep the reaction.
+			// Of course we also hope require that a reaction be in at most one
+			// module, hence if we have already seen the reaction then we shouldn't
+			// add it here.
+			if (this.seen_reactions.contains(reaction)){
+				continue;
+			}
+			
 			Set<String> rateAffectors = 
 				AnalysisUtils.reactionRateModifiers(reaction);
 			// Remove from that set all those components which
@@ -247,9 +270,7 @@ public class ModuleExtractor {
 			for (String component : this.components.keySet()){
 				rateAffectors.remove(component);
 			}
-			// If the resultant set is now empty we know that there
-			// are no components which affect the rate of this reaction
-			// that we do not intend to keep, hence we can keep the reaction.
+			
 			if (rateAffectors.isEmpty()){
 				reactions.addLast(reaction);
 			}
@@ -260,6 +281,10 @@ public class ModuleExtractor {
 			ReactionDef rd = new ReactionDef(reaction.getName(), 
 					 						 reaction.getRate());
 			smodel.add_reaction_def(rd);
+			// We also add it to her self contained list of seen_reactions
+			// in this way we can avoid exporting a reaction in two different
+			// modules.
+			this.seen_reactions.add(reaction);
 		}
 		
 		
