@@ -172,6 +172,31 @@ public class BioPEPACommandLine {
 		return null;
 	}
 	
+	/*
+	 * Returns a list of arguments to the given option name. This is essentially
+	 * the same as 'getOptionArgument' except it is used when you expect there to
+	 * be more than one option of the given name. 
+	 * For example: --module A,B --module C,D
+	 */
+	private static List<String> getAllOptionArguments(String[] args, String option)
+	        throws WrongArgumentsException {
+		LinkedList<String> result = new LinkedList<String>();
+		
+		for (int index = 0; index < args.length; index++){
+			if (argumentEqualsOption(args[index], option)){
+				if (args.length > index + 1){
+					index++;
+					result.addLast(args[index]);
+				} else {
+					String m = "The " + args[index] + " option must take an argument";
+					throw new WrongArgumentsException(m);
+				}
+			}
+		}
+		
+		return result;
+	}
+	
 	private static List<ReactionTracer> getReactionTracers (String[] args) 
 			throws WrongArgumentsException{
 		List<ReactionTracer> rTracers= new LinkedList<ReactionTracer> ();
@@ -339,7 +364,7 @@ public class BioPEPACommandLine {
 	
 	private static double getTimeStep (String [] args) 
 							throws WrongArgumentsException{
-		return getDoubleOptionArgument(args, "timeStep", 0.1);
+		return getDoubleOptionArgument(args, "timeStep", 0.0001);
 	}
 	
 	private static double getRelativeError(String [] args)
@@ -409,6 +434,15 @@ public class BioPEPACommandLine {
 		return getIntegerOptionArgument(args, "granularity", 1);
 	}
 	
+	private static String[] splitCommaSeparatedNames(String compsString){
+		// I copied this from:
+		// http://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
+		// We could actually think about what BioPEPA names can be and how
+		// this affects it.
+		String[] tokens = compsString.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+		return tokens;
+	}
+	
 	private static String[] getComponentsArgument(String[] args)
 			throws WrongArgumentsException{
 		String compsString = getOptionArgument(args, "components");
@@ -416,12 +450,19 @@ public class BioPEPACommandLine {
 			return null;
 		}
 
-		// I copied this from:
-		// http://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
-		// We could actually think about what BioPEPA names can be and how
-		// this affects it.
-		String[] tokens = compsString.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-		return tokens;
+		return splitCommaSeparatedNames(compsString);
+	}
+	
+	private static List<String[]> getModuleGroups(String[] args)
+	        throws WrongArgumentsException {
+		List<String> module_strings = getAllOptionArguments(args, "module");
+		LinkedList<String[]> result = new LinkedList<String[]>();
+		
+		for (String module_string : module_strings){
+			result.addLast(splitCommaSeparatedNames(module_string));
+		}
+		
+		return result;
 	}
 	
 	private static String[] getKnockedOutReactions(String[] args)
@@ -1146,42 +1187,54 @@ public class BioPEPACommandLine {
 	private static void performExtractModule(String [] args)
     	throws WrongArgumentsException
     {
-		String[] componentNames = getComponentsArgument(args);
+		List<String[]> moduleGroups = getModuleGroups(args);
 		
-		if (componentNames == null){
-			printUserError ("You must supply a (comma separated) list of " +
-					        "component names using the --components flag");
+		if (moduleGroups.isEmpty()){
+			printUserError ("You must supply at least one (comma separated) list of " +
+					        "component names using the --module flag");
 			
 		}
 		
 		SBAModel sbaModel = parseAndComputeSBAModel(args);
+		String outputFileBaseName = getOutputFile(args);
+
 		// ComponentNode[] modelComponents = sbaModel.getComponents();
-		
-		// A mapping from component names to their initial concentrations
-		// the idea here is that we could override what is written in the
-		// model file with a command-line option.
-		HashMap<String, Number> compMap = new HashMap<String, Number>();
-		for (String component : componentNames){
-			// This currently does not raise an exception if the component
-			// in question is not in the model, but we should catch that
-			// situation and halt and print an error.
-			Number count = sbaModel.getNamedComponentCount(component);
-			compMap.put(component, count);
-		}
-		ModuleExtractor mextract = new ModuleExtractor(sbaModel, compMap);
-		
-		try {
-			StringConsumer outWriter = getOutStringConsumer(args);
-			
-			mextract.extract(outWriter);
-			
-			outWriter.endLine();
-			outWriter.closeStringConsumer();
-		} catch (IOException e){
-			printUserError ("There was a problem writing the output data");
-			printUserError(e.getMessage());
-		} catch (BioPEPAException e){
-			printUserError (e.getMessage());
+		System.out.println ("About to go into the for loop");
+		for (int index = 0; index < moduleGroups.size(); index++){
+			System.out.println ("I'm here, I'm here!");
+			String[] componentNames = moduleGroups.get(index);
+
+			// A mapping from component names to their initial concentrations
+			// the idea here is that we could override what is written in the
+			// model file with a command-line option.
+			HashMap<String, Number> compMap = new HashMap<String, Number>();
+			for (String component : componentNames) {
+				// This currently does not raise an exception if the component
+				// in question is not in the model, but we should catch that
+				// situation and halt and print an error.
+				Number count = sbaModel.getNamedComponentCount(component);
+				compMap.put(component, count);
+			}
+
+			ModuleExtractor mextract = new ModuleExtractor(sbaModel, compMap);
+
+			try {
+				String file_suffix = "module_" + index + ".biopepa";
+				String outputFile = outputFileBaseName != null ? 
+						            outputFileBaseName + "_" + file_suffix : file_suffix ;
+					                                               
+				StringConsumer outWriter = fileNameToStringConsumer(outputFile);
+
+				mextract.extract(outWriter);
+
+				outWriter.endLine();
+				outWriter.closeStringConsumer();
+			} catch (IOException e) {
+				printUserError("There was a problem writing the output data");
+				printUserError(e.getMessage());
+			} catch (BioPEPAException e) {
+				printUserError(e.getMessage());
+			}
 		}
     }
 	
