@@ -68,7 +68,7 @@ public class SBAModel implements DynamicExpressionModelContext {
 					
 				} else if (prefix instanceof TransportData) {
 					
-					/*
+					
 					td = (TransportData) prefix;
 					if (compartmentName.equals(td.getSourceLocation())) {
 						behaviour = new SBAComponentBehaviour(name, compartmentName,
@@ -86,11 +86,14 @@ public class SBAModel implements DynamicExpressionModelContext {
 						reaction.reversible = true;
 					}
 					reaction.transportation = td;
-					*/
+					
+					reaction.addComponent(behaviour);
+					recordReaction(reaction);
+					
 					/*
 					 * Working version that creates uni-directional copies based
 					 * on source location
-					 */
+					 *
 					td = (TransportData) prefix;
 					if(!compartmentName.equals(td.getSourceLocation())){
 						continue; 
@@ -117,6 +120,7 @@ public class SBAModel implements DynamicExpressionModelContext {
 					    reaction.addComponent(behaviour);
 					    recordReaction(reaction); 
 					}
+					*/
 					
 				} else {
 					throw new IllegalArgumentException("Unrecognised subclass of PrefixData.");
