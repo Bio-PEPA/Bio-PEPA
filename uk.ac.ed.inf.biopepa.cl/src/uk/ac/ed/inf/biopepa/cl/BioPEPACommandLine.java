@@ -457,6 +457,7 @@ public class BioPEPACommandLine {
 		"biopepa import-spread FILENAME -- transform a spreadsheet into a " +
 											"biopepa model",
 	    "biopepa prism FILENAME         -- export the model as a prism model",
+	    "biopepa extract-module FILE    -- extract a module from a model",
 	    "biopepa export-sbml FILENAME   -- export the model as an SBML model",
 	    "biopepa modularise FILENAME    -- export a MIDIA Rscript based on " +
 	                                      "the input biopepa model",
