@@ -68,7 +68,7 @@ public class SBAModel implements DynamicExpressionModelContext {
 					
 				} else if (prefix instanceof TransportData) {
 					
-					/*
+					
 					td = (TransportData) prefix;
 					if (compartmentName.equals(td.getSourceLocation())) {
 						behaviour = new SBAComponentBehaviour(name, compartmentName,
@@ -86,11 +86,14 @@ public class SBAModel implements DynamicExpressionModelContext {
 						reaction.reversible = true;
 					}
 					reaction.transportation = td;
-					*/
+					
+					reaction.addComponent(behaviour);
+					recordReaction(reaction);
+					
 					/*
 					 * Working version that creates uni-directional copies based
 					 * on source location
-					 */
+					 *
 					td = (TransportData) prefix;
 					if(!compartmentName.equals(td.getSourceLocation())){
 						continue; 
@@ -117,12 +120,13 @@ public class SBAModel implements DynamicExpressionModelContext {
 					    reaction.addComponent(behaviour);
 					    recordReaction(reaction); 
 					}
+					*/
 					
 				} else {
 					throw new IllegalArgumentException("Unrecognised subclass of PrefixData.");
 				}
-				// reaction.addComponent(behaviour);
-				// recordReaction(reaction);
+				reaction.addComponent(behaviour);
+				recordReaction(reaction);
 			}
 		}
 
@@ -150,9 +154,22 @@ public class SBAModel implements DynamicExpressionModelContext {
 				if (actions.contains(action)) {
 					// Synchronized action
 					newList = new LinkedList<SBAReaction>();
-					for (SBAReaction one : left.get(action))
-						for (SBAReaction two : me.getValue())
+                                        /*
+					if (left == null){
+						System.out.println("left is indeed null\n");
+					}
+					if (action == null){
+						System.out.println("action is null\n");
+					}
+                                        */
+					List<SBAReaction>leftActions = left.get(action);
+					if (leftActions != null){
+					  for (SBAReaction one : left.get(action)){
+						  for (SBAReaction two : me.getValue()){
 							newList.addAll(SBAReaction.merge(one, two));
+						  }
+					  }
+					}
 					left.put(action, newList);
 
 				} else {
