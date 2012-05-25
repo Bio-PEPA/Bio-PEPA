@@ -62,8 +62,10 @@ public class SimulationDistributionsWizard extends Wizard implements IResourcePr
 
 		protected ExportPage(String pageName) {
 			super(pageName);
-			this.setTitle("Simulation Trace");
-			this.setDescription("Set up a Simulation trace with possible export");
+			this.setTitle("Simulation Distributions");
+			this.setDescription("Use simulation runs to calculate the probability " +
+					            "for a species to reach a particular population " +
+					            "size by each time point");
 		}
 		
 		private int textStyle = SWT.RIGHT | SWT.BORDER;

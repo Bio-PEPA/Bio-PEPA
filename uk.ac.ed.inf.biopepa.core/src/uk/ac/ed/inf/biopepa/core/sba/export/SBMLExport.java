@@ -179,7 +179,14 @@ public class SBMLExport implements Exporter {
 		// Right now we are adding an initial assignment for each
 		// species count.
 		for (ComponentNode comp : components){
-			initialAssignment.append(toSBMLInitialAssign(comp,3)).append(term);
+			// initialAssignment.append(toSBMLInitialAssign(comp,3)).append(term);
+			CompiledExpression initAmountExp = comp.getInitialAmountExpression();
+			SBMLRateGenerator sbmlRG = 
+				new SBMLRateGenerator(initAmountExp, 
+										assignmentIndentation + 3);
+			sbmlRG.generate();
+			String initialAmount = sbmlRG.toString();
+			addInitialAssignment(comp.getName(), initialAmount);
 		}
 		
 		// Parameters
@@ -202,11 +209,16 @@ public class SBMLExport implements Exporter {
 		return sbml.toString();
 	}
 
+	/*
 	private String toSBMLInitialAssign (ComponentNode comp, int indentation){
 		String indent = makeIndentation(indentation);
 		StringBuilder sb = new StringBuilder();
 		sb.append(indent).append("<initialAssignment symbol=\"");
-		sb.append(comp.getName());
+		String comp_name = comp.getName();
+		if (sbmlMap.containsKey(comp_name)){
+			comp_name = sbmlMap.get(comp_name);
+		}
+		sb.append(comp_name);
 		sb.append("\">").append(term);
 		sb.append(indent).append("  ").append("<math xmlns=\"http://www.w3.org/1998/Math/MathML\">").append(term);
 		
@@ -223,6 +235,7 @@ public class SBMLExport implements Exporter {
     	
     	return sb.toString();
 	}
+	*/
 	
 	private void mapNames(Set<String> names) {
 		String s;
@@ -479,9 +492,9 @@ public class SBMLExport implements Exporter {
 				recordedVariables.add(name);
 				CompiledExpression ce = model.getStaticExpression(name);
 				ParameterVisitor pv = new ParameterVisitor();
-				if (ce != null && ce.accept(pv))
+				if (ce != null && ce.accept(pv)) {
 					addParameter(name, ce.toString(), false);
-				else {
+				} else {
 					SBMLRateGenerator sbmlRG;
 					if (ce == null) {
 						ce = model.getDynamicExpression(name);
